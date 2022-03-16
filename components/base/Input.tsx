@@ -18,7 +18,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 
   return (
     <input
-      className={`w-full mb-2 rounded-lg focus:ring-2 focus:ring-blue-600 selection:autofill:bg-gray-700/50 dark:text-white dark:border-gray-900/60 dark:bg-gray-700/50 ${statusStyle}`}
+      className={`w-full mb-2 rounded-lg border-gray-200 focus:ring-2 focus:ring-blue-600 selection:autofill:bg-gray-700/50 dark:text-white dark:border-gray-900/60 dark:bg-gray-700/50 ${statusStyle}`}
       ref={ref}
       {...props}
     />
