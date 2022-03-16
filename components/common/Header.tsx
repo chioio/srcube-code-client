@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMeteor } from '@fortawesome/free-solid-svg-icons'
 
 import { Logo, UserMenu } from '@components/common'
-import { useWindowMounted } from '@lib/hooks/useWindowMounted'
+import { useWindowMounted } from '@lib/hooks'
 
 interface HeaderProps {}
 
