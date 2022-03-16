@@ -60,22 +60,22 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
               </Link>
             </li>
             <li className={`pt-1.5 ${styles.item.li}`}>
-              <Link href={`/${profile.username}/profile`}>
+              <Link href={`/${encodeURIComponent(profile.username)}`}>
                 <p className={styles.item.p}>Profile</p>
               </Link>
             </li>
             <li className={styles.item.li}>
-              <Link href="/">
+              <Link href={`/${encodeURIComponent(profile.username)}?tab=works`}>
                 <p className={styles.item.p}>Works</p>
               </Link>
             </li>
             <li className={styles.item.li}>
-              <Link href="/">
+              <Link href={`/${encodeURIComponent(profile.username)}?tab=stars`}>
                 <p className={styles.item.p}>Stars</p>
               </Link>
             </li>
             <li className={`pb-1.5 border-b ${styles.item.li}`}>
-              <Link href="/">
+              <Link href={`/${encodeURIComponent(profile.username)}?tab=follows`}>
                 <p className={styles.item.p}>Follows</p>
               </Link>
             </li>
