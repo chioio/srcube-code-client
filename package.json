@@ -12,6 +12,7 @@
     "@apollo/client": "^3.5.10",
     "@fortawesome/fontawesome-common-types": "^6.1.0",
     "@fortawesome/fontawesome-svg-core": "^6.1.0",
+    "@fortawesome/free-regular-svg-icons": "^6.1.0",
     "@fortawesome/free-solid-svg-icons": "^6.1.0",
     "@fortawesome/react-fontawesome": "^0.1.17",
     "@headlessui/react": "^1.5.0",

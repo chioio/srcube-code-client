@@ -4,6 +4,7 @@ specifiers:
   '@apollo/client': ^3.5.10
   '@fortawesome/fontawesome-common-types': ^6.1.0
   '@fortawesome/fontawesome-svg-core': ^6.1.0
+  '@fortawesome/free-regular-svg-icons': ^6.1.0
   '@fortawesome/free-solid-svg-icons': ^6.1.0
   '@fortawesome/react-fontawesome': ^0.1.17
   '@headlessui/react': ^1.5.0
@@ -31,6 +32,7 @@ dependencies:
   '@apollo/client': 3.5.10_graphql@16.3.0+react@17.0.2
   '@fortawesome/fontawesome-common-types': 6.1.0
   '@fortawesome/fontawesome-svg-core': 6.1.0
+  '@fortawesome/free-regular-svg-icons': 6.1.0
   '@fortawesome/free-solid-svg-icons': 6.1.0
   '@fortawesome/react-fontawesome': 0.1.17_d2d03af444233300c17090fb2cc105c2
   '@headlessui/react': 1.5.0_react-dom@17.0.2+react@17.0.2
@@ -149,6 +151,14 @@ packages:
 
   /@fortawesome/fontawesome-svg-core/6.1.0:
     resolution: {integrity: sha512-racj+/EDnMZN0jcuHePOa+9kdHHOCpCAbBvVRnEi4G4DA5SWQiT/uXJ8WcfVEbLN51vPJjhukP4o+zH0cfYplg==}
+    engines: {node: '>=6'}
+    requiresBuild: true
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.1.0
+    dev: false
+
+  /@fortawesome/free-regular-svg-icons/6.1.0:
+    resolution: {integrity: sha512-MLSBZ3AprHZXVG6zVg9Jd/mGZrlX/1jxqQsHhvZuhdRdL9bZQyXHe5RmP0n4IOth/fdnoj3fs+EnbW/O+0K4dw==}
     engines: {node: '>=6'}
     requiresBuild: true
     dependencies:

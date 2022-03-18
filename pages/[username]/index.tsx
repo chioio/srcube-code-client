@@ -20,6 +20,7 @@ interface UrlQuery extends ParsedUrlQuery {
   username: string
   tab: undefined | 'creations' | 'stars' | 'settings' | 'followers' | 'following'
 }
+
 const Profile: NextPage = () => {
   const router = useRouter()
   const profile = useRecoilValue(userProfileState)
@@ -28,19 +29,19 @@ const Profile: NextPage = () => {
 
   const navigation = [
     {
-      label: 'Overview',
+      label: 'overview',
       icon: faUserAstronaut,
     },
     {
-      label: 'Creations',
+      label: 'creations',
       icon: faCubes,
     },
     {
-      label: 'Stars',
+      label: 'stars',
       icon: faDisease,
     },
     {
-      label: 'Settings',
+      label: 'settings',
       icon: faGear,
     },
   ]
@@ -61,7 +62,7 @@ const Profile: NextPage = () => {
         <Main>
           <div className="h-72 bg-blue-600 bg-[url('/img/bg-layout-light.svg')]"></div>
           <div className="mx-auto px-20 xl:px-44 grid grid-cols-12 gap-x-12">
-            <div className="-mt-24 pb-20 col-span-4">
+            <div className="-mt-24 pb-20 col-span-4 2xl:col-span-3">
               <img src={profile.avatar} alt="" className="mx-auto rounded-full border-[6px] border-white" />
               <div className=" my-4 mx-auto max-w-fit">
                 <h1 className="inline text-center">{profile.firstName + ' ' + profile.lastName}</h1>
@@ -77,19 +78,21 @@ const Profile: NextPage = () => {
                 </Link>
               </div>
             </div>
-            <div className="flex flex-col col-span-8">
+            <div className="flex flex-col col-span-8 2xl:col-span-9">
               <nav className="-mt-12 rounded-t-lg bg-white">
                 {navigation.map((item, index) => (
-                  <Link key={index} href={`/${username}${index === 0 ? '' : '?tab=' + item.label.toLowerCase()}`}>
+                  <Link key={index} href={`/${username}${index === 0 ? '' : '?tab=' + item.label}`}>
                     <a
-                      className={`inline-block py-2.5 px-6 space-x-2 text-xl font-semibold border-b-[6px] rounded-b-sm ${
-                        (!tab && index === 0) || tab === navigation[index].label.toLocaleLowerCase()
+                      className={`inline-block py-2.5 px-6 space-x-2 text-xl font-semibold border-b-[6px] rounded-b-sm last:float-right ${
+                        (!tab && index === 0) || tab === navigation[index].label
                           ? 'border-b-orange-500'
                           : 'border-b-transparent'
-                      } ${index === navigation.length - 1 && 'float-right'}`}
+                      }`}
                     >
                       <FontAwesomeIcon icon={item.icon} />
-                      <span className={`${index === navigation.length - 1 ? 'hidden' : 'display-block'}`}>
+                      <span
+                        className={`inline-block first-letter:uppercase ${index === navigation.length - 1 && 'hidden'}`}
+                      >
                         {item.label}
                       </span>
                     </a>
