@@ -45,10 +45,8 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
         leaveTo="opacity-0 translate-y-1"
       >
         <Popover.Panel
-          className={`${[
-            'absolute right-0 top-11 md:top-12 z-10 px-4 py-3 mt-2 w-52 md:w-56 rounded-lg border-t-[0.25rem] border-blue-600 bg-white shadow-lg',
-            'before:content-[""] before:absolute before:-top-3 before:right-3 before:border-l-[0.5rem] before:border-r-[0.5rem] before:border-l-transparent before:border-r-transparent before:border-b-8 before:border-b-blue-600',
-          ]}`}
+          className="absolute right-0 top-11 md:top-12 z-10 px-4 py-3 mt-2 w-52 md:w-56 rounded-lg border-t-[0.25rem] border-blue-600 bg-white shadow-lg 
+          before:absolute before:-top-3 before:right-3 before:border-l-[0.5rem] before:border-r-[0.5rem] before:border-l-transparent before:border-r-transparent before:border-b-8 before:border-b-blue-600"
         >
           <p className="mb-1 text-xl font-bold">{profile.nickname || `${profile.firstName} ${profile.lastName}`}</p>
           <ul className="select-none font-semibold text-gray-600">
