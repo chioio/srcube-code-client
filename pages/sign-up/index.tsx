@@ -120,7 +120,7 @@ const SignUp: NextPage = () => {
         <Header />
 
         {/* HOME CONTENT */}
-        <Main>
+        <Main decorated>
           <FormProvider {...form}>
             <form
               onSubmit={form.handleSubmit(submitHandler)}

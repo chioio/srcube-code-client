@@ -98,7 +98,7 @@ const SignIn: NextPage = () => {
         <Header />
 
         {/* CONTENT */}
-        <Main>
+        <Main decorated>
           <FormProvider {...form}>
             <form
               onSubmit={form.handleSubmit(submitHandler)}

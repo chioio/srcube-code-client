@@ -6,7 +6,6 @@ import { Header, Layout, Links, Main, Meta } from '@components/common'
 
 const Coding: NextPage = () => {
   const router = useRouter()
-  const { username } = router.query
   return (
     <>
       <Head>
