@@ -9,10 +9,7 @@ import { faLink, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { userProfileState } from '@lib/store/atoms'
 import { faEdit, faStar } from '@fortawesome/free-regular-svg-icons'
 
-interface SnapshotModalProps {
-  isOpen: boolean
-  onClose: () => void
-}
+interface PreviewModalProps extends Modal {}
 
 const styles = {
   action: {
@@ -22,10 +19,10 @@ const styles = {
   },
 }
 
-export const SnapshotModal: React.VFC<SnapshotModalProps> = ({ isOpen, onClose }) => {
+export const PreviewModal: React.VFC<PreviewModalProps> = ({ isActive, onClose }) => {
   const profile = useRecoilValue(userProfileState)
   return (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition appear show={isActive} as={Fragment}>
       <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={onClose}>
         <div className="min-h-screen px-4">
           <Transition.Child

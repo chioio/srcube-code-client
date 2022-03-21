@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { createContext, Dispatch, Fragment, SetStateAction, useState } from 'react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -7,23 +7,29 @@ import {
   faPenToSquare,
   faStar as fasStar,
   faThumbtack,
-  faTimes,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons'
 import { faStar as farStar, faComment } from '@fortawesome/free-regular-svg-icons'
-import { Dialog, Popover, Transition } from '@headlessui/react'
-import { SnapshotModal } from './SnapshotModal'
+import { Popover, Transition } from '@headlessui/react'
+import { PreviewModal } from './PreviewModal'
+import { InfoEditModal } from './InfoEditModal'
+import { useModal } from '@lib/hooks'
+import { DeleteModal } from './DeleteModal'
 
 export const Snapshot: React.VFC<any> = () => {
-  const [isOpen, setIsOpen] = useState(false)
 
-  const handleOpenModal = () => setIsOpen(true)
-
-  const handleCloseModal = () => setIsOpen(false)
+  const [isPreviewActive, setIsPreviewActive] = useModal()
+  const [isEditInfoActive, setIsEditInfoActive] = useModal()
+  const [isDeleteActive, setIsDeleteActive] = useModal()
 
   const handleStar = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     console.log('star!')
+  }
+
+  const handleAddToPin = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    console.log('pin!')
   }
 
   return (
@@ -35,7 +41,7 @@ export const Snapshot: React.VFC<any> = () => {
       >
         <div className="relative flex items-center justify-center py-[25%] w-full h-full rounded-xl overflow-hidden bg-red-500 text-white">
           <button
-            onClick={handleOpenModal}
+            onClick={() => setIsPreviewActive(true)}
             className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl
           after:absolute after:right-0 after:top-0 after:w-full after:h-full after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent after:transition-all after:duration-300"
           >
@@ -47,14 +53,7 @@ export const Snapshot: React.VFC<any> = () => {
           <div className="flex items-center justify-between ">
             <h2 className="flex-1 mt-0.5 text-lg font-bold">Title</h2>
             <Popover className="inline-block relative">
-              <Popover.Button
-                as="button"
-                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.stopPropagation()
-                  console.log('popover')
-                }}
-                className="m-1 w-7 h-7 text-lg text-black/30 hover:text-black rounded-full active:bg-black/5"
-              >
+              <Popover.Button className="m-1 w-7 h-7 text-lg text-black/30 hover:text-black rounded-full active:bg-black/5">
                 <FontAwesomeIcon icon={faEllipsis} />
               </Popover.Button>
               <Transition
@@ -69,19 +68,19 @@ export const Snapshot: React.VFC<any> = () => {
                 <Popover.Panel className="absolute bottom-9 right-0 px-4 py-3 mt-2 w-40 z-50 rounded-lg bg-white shadow-lg">
                   <ul className="">
                     <li className={`p-0.5 border-b`}>
-                      <button className=" space-x-2">
+                      <button onClick={() => setIsEditInfoActive(true)} className="w-full space-x-2 text-left">
                         <FontAwesomeIcon icon={faPenToSquare} />
-                        <span>Edit infos</span>
+                        <span>Edit info</span>
                       </button>
                     </li>
                     <li className={`p-0.5 border-b`}>
-                      <button className=" space-x-2">
+                      <button onClick={handleAddToPin} className="w-full space-x-2 text-left">
                         <FontAwesomeIcon icon={faThumbtack} />
                         <span>Add to Pins</span>
                       </button>
                     </li>
                     <li className={`p-0.5`}>
-                      <button className="space-x-2">
+                      <button onClick={() => setIsDeleteActive(true)} className="w-full space-x-2 text-left">
                         <FontAwesomeIcon icon={faTrashCan} />
                         <span>Delete</span>
                       </button>
@@ -96,14 +95,16 @@ export const Snapshot: React.VFC<any> = () => {
               <FontAwesomeIcon icon={fasStar} className="text-yellow-400" />
               <span className="text-sm">10</span>
             </button>
-            <button className="space-x-1 px-2 rounded-sm font-semibold hover:bg-black/5">
+            <button onClick={() => setIsPreviewActive(true)} className="space-x-1 px-2 rounded-sm font-semibold hover:bg-black/5">
               <FontAwesomeIcon icon={faComment} />
               <span className="text-sm">4</span>
             </button>
           </div>
         </div>
       </article>
-      <SnapshotModal isOpen={isOpen} onClose={handleCloseModal} />
+      <PreviewModal isActive={isPreviewActive} onClose={() => setIsPreviewActive(false)} />
+      <InfoEditModal isActive={isEditInfoActive} onClose={() => setIsEditInfoActive(false)} />
+      <DeleteModal isActive={isDeleteActive} onClose={() => setIsDeleteActive(false)} />
     </>
   )
 }
