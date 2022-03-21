@@ -64,7 +64,7 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
             </li>
             <li className={styles.item.li}>
               <Link href={`/${encodeURIComponent(profile.username)}?tab=creations`}>
-                <p className={styles.item.p}>Works</p>
+                <p className={styles.item.p}>Creations</p>
               </Link>
             </li>
             <li className={styles.item.li}>
