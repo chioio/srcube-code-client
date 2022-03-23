@@ -15,7 +15,7 @@ export const Preview: React.VFC<PreviewProps> = ({}) => {
         <button
           onClick={() => setIsModalActive(true)}
           className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl
-        after:absolute after:right-0 after:top-0 after:w-full after:h-full after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent after:transition-all after:duration-300"
+          after:absolute after:right-0 after:top-0 group-hover:after:inset-0 after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent "
         >
           <FontAwesomeIcon icon={faExpand} className="z-20 absolute top-2.5 right-4" />
         </button>

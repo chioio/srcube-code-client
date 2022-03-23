@@ -4,9 +4,9 @@ import { Dialog, Transition } from '@headlessui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 
-interface InfoEditModalProps extends Modal {}
+interface EditInfoModalProps extends Modal {}
 
-export const InfoEditModal: React.VFC<InfoEditModalProps> = ({ isActive, onClose }) => {
+export const EditInfoModal: React.VFC<EditInfoModalProps> = ({ isActive, onClose }) => {
   return (
     <Transition appear show={isActive} as={Fragment}>
       <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={onClose}>

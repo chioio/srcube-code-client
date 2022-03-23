@@ -6,7 +6,7 @@ export const Creations: React.VFC<any> = () => {
       <Function />
       <div className="p-4 grid grid-cols-2 2xl:grid-cols-3 gap-4">
         {[0, 1, 2, 3].map((index) => (
-          <CreationItem key={index} />
+          <CreationItem key={index} isCommon={false} />
         ))}
       </div>
     </div>
