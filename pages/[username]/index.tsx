@@ -98,7 +98,7 @@ const Profile: NextPage = () => {
               </div>
             </div>
             <div className="flex flex-col mb-14 col-span-8 2xl:col-span-9">
-              <nav className="-mt-[3.4rem] rounded-t-lg bg-white">
+              <nav className="-mt-[3.4rem] rounded-t-lg bg-white border-b">
                 {navigation.map((item, index) => (
                   <Link key={index} href={`/${username}${index === 0 ? '' : '?tab=' + item.label}`}>
                     <a
