@@ -3,9 +3,10 @@ import { useFormContext } from 'react-hook-form'
 
 interface InputProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   name: string
+  expand?: boolean
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+const Input = forwardRef<HTMLInputElement, InputProps>(({ expand = true, ...props }, ref) => {
   const [statusStyle, setStatusStyle] = useState<string>()
 
   const ctx = useFormContext()
@@ -18,7 +19,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 
   return (
     <input
-      className={`w-full mb-2 rounded-lg border-gray-200 focus:ring-2 focus:ring-blue-600 selection:autofill:bg-gray-700/50 dark:text-white dark:border-gray-900/60 dark:bg-gray-700/50 ${statusStyle}`}
+      className={`block ${
+        expand ? 'w-full' : ''
+      } mb-2 rounded-lg border-gray-200 focus:ring-2 focus:ring-blue-600 selection:autofill:bg-gray-700/50 dark:text-white ${statusStyle}
+      disabled:bg-black/5 disabled:cursor-not-allowed`}
       ref={ref}
       {...props}
     />
