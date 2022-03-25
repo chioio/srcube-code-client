@@ -3,17 +3,44 @@
 @tailwind utilities;
 
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
   }
   h1 {
     @apply text-4xl;
   }
   h2 {
-    @apply text-2xl
+    @apply text-2xl;
   }
   a,
   button {
     @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .vs .monaco-scrollable-element > .scrollbar > .slider {
+    @apply bg-slate-800 bg-opacity-10 rounded;
+  }
+
+  .split-panel {
+    @apply flex-1 dark:border-gray-800;
+  }
+
+  .split-panel .gutter {
+    @apply relative flex items-center justify-center p-1.5 bg-gray-100 dark:bg-gray-800;
+  }
+
+  .split-panel .gutter.gutter-horizontal {
+    @apply cursor-col-resize before:content-[''] before:w-full before:h-10 before:rounded before:bg-blue-200 before:hover:bg-blue-600;
+  }
+
+  .split-panel .gutter.gutter-vertical {
+    @apply cursor-row-resize before:content-[''] before:w-10 before:h-full before:rounded before:bg-blue-200 before:hover:bg-blue-600;
   }
 }

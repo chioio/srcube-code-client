@@ -1,5 +1,5 @@
 export { Links, Meta } from './Heads'
-export { Logo } from './Logo'
+export { Logo, LogoIcon } from './Logo'
 
 export { Layout } from './Layout'
 export { Header } from './Header'

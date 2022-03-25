@@ -9,6 +9,7 @@ specifiers:
   '@fortawesome/react-fontawesome': ^0.1.17
   '@headlessui/react': ^1.5.0
   '@hookform/resolvers': ^2.8.8
+  '@monaco-editor/react': ^4.3.1
   '@tailwindcss/forms': ^0.5.0
   '@types/node': 17.0.21
   '@types/react': 17.0.40
@@ -17,12 +18,14 @@ specifiers:
   eslint: 8.11.0
   eslint-config-next: 12.1.0
   graphql: ^16.3.0
+  monaco-editor: ^0.33.0
   next: 12.1.0
   postcss: ^8.4.8
   react: 17.0.2
   react-dom: 17.0.2
   react-hook-form: ^7.28.0
   react-hot-toast: ^2.2.0
+  react-split: ^2.0.14
   recoil: ^0.6.1
   tailwindcss: ^3.0.23
   typescript: 4.6.2
@@ -37,13 +40,16 @@ dependencies:
   '@fortawesome/react-fontawesome': 0.1.17_d2d03af444233300c17090fb2cc105c2
   '@headlessui/react': 1.5.0_react-dom@17.0.2+react@17.0.2
   '@hookform/resolvers': 2.8.8_react-hook-form@7.28.0
+  '@monaco-editor/react': 4.3.1_66b714495a9e953b0598750a09f73ca1
   '@tailwindcss/forms': 0.5.0_tailwindcss@3.0.23
   graphql: 16.3.0
+  monaco-editor: 0.33.0
   next: 12.1.0_react-dom@17.0.2+react@17.0.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-hook-form: 7.28.0_react@17.0.2
   react-hot-toast: 2.2.0_383bc679f6b8b3c30a924b2c4a84e8d7
+  react-split: 2.0.14_react@17.0.2
   recoil: 0.6.1_react-dom@17.0.2+react@17.0.2
   yup: 0.32.11
 
@@ -225,6 +231,29 @@ packages:
   /@humanwhocodes/object-schema/1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
+
+  /@monaco-editor/loader/1.3.0_monaco-editor@0.33.0:
+    resolution: {integrity: sha512-N3mGq1ktC3zh7WUx3NGO+PSDdNq9Vspk/41rEmRdrCqV9vNbBTRzAOplmUpNQsi+hmTs++ERMBobMERb8Kb+3g==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      monaco-editor: 0.33.0
+      state-local: 1.0.7
+    dev: false
+
+  /@monaco-editor/react/4.3.1_66b714495a9e953b0598750a09f73ca1:
+    resolution: {integrity: sha512-f+0BK1PP/W5I50hHHmwf11+Ea92E5H1VZXs+wvKplWUWOfyMa1VVwqkJrXjRvbcqHL+XdIGYWhWNdi4McEvnZg==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0
+      react-dom: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@monaco-editor/loader': 1.3.0_monaco-editor@0.33.0
+      monaco-editor: 0.33.0
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
 
   /@next/env/12.1.0:
     resolution: {integrity: sha512-nrIgY6t17FQ9xxwH3jj0a6EOiQ/WDHUos35Hghtr+SWN/ntHIQ7UpuvSi0vaLzZVHQWaDupKI+liO5vANcDeTQ==}
@@ -1658,6 +1687,10 @@ packages:
     resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
     dev: true
 
+  /monaco-editor/0.33.0:
+    resolution: {integrity: sha512-VcRWPSLIUEgQJQIE0pVT8FcGBIgFoxz7jtqctE+IiCxWugD0DwgyQBcZBhdSrdMC84eumoqMZsGl2GTreOzwqw==}
+    dev: false
+
   /ms/2.0.0:
     resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}
     dev: true
@@ -2024,6 +2057,16 @@ packages:
   /react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
+  /react-split/2.0.14_react@17.0.2:
+    resolution: {integrity: sha512-bKWydgMgaKTg/2JGQnaJPg51T6dmumTWZppFgEbbY0Fbme0F5TuatAScCLaqommbGQQf/ZT1zaejuPDriscISA==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      prop-types: 15.8.1
+      react: 17.0.2
+      split.js: 1.6.5
+    dev: false
+
   /react/17.0.2:
     resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
     engines: {node: '>=0.10.0'}
@@ -2159,6 +2202,14 @@ packages:
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
+
+  /split.js/1.6.5:
+    resolution: {integrity: sha512-mPTnGCiS/RiuTNsVhCm9De9cCAUsrNFFviRbADdKiiV+Kk8HKp/0fWu7Kr8pi3/yBmsqLFHuXGT9UUZ+CNLwFw==}
+    dev: false
+
+  /state-local/1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
+    dev: false
 
   /string.prototype.matchall/4.0.6:
     resolution: {integrity: sha512-6WgDX8HmQqvEd7J+G6VtAahhsQIssiZ8zl7zKh1VDMFyL3hRTJP4FTNA3RbIp2TOQ9AYNDcc7e3fH0Qbup+DBg==}
