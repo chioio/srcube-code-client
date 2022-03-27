@@ -147,7 +147,7 @@ const SignUp: NextPage = () => {
                   />
                   <p className="text-sm text-red-500">{form.formState.errors['firstName']?.message}</p>
                 </div>
-                <span className="self-center mt-2.5 px-2">-</span>
+                <span className="relative top-12 px-2">-</span>
                 {/* Last Name Input */}
                 <div className="flex-1">
                   <label htmlFor="lastName" className="text-lg leading-9 dark:text-gray-300">
