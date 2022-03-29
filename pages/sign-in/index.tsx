@@ -19,6 +19,8 @@ import { useWindowMounted, useExistedCheck } from '@lib/hooks'
 import { AccountType, SignInInput, SignInOutput } from '@lib/api/schema'
 import { SIGN_IN_MUTATION } from '@lib/api/mutations'
 import { Result, Variables } from '@lib/api/graphql'
+import { useRecoilState } from 'recoil'
+import { userProfileState } from '@lib/store/atoms'
 
 interface Fields {
   account: string
@@ -30,6 +32,8 @@ const SignIn: NextPage = () => {
   // For the input control value changing
   const [isChanged, setIsChanged] = useState(false)
 
+  const [, setUserProfile] = useRecoilState(userProfileState)
+
   const router = useRouter()
   const isWindowMounted = useWindowMounted()
   const accountExistedCheck = useExistedCheck()
@@ -37,6 +41,8 @@ const SignIn: NextPage = () => {
   const [signIn] = useMutation<Result<SignInOutput>, Variables<SignInInput>>(SIGN_IN_MUTATION, {
     onCompleted: (data) => {
       toast.success('Hello, ' + data.signIn.profile.username + '!')
+
+      setUserProfile(data.signIn.profile)
 
       isWindowMounted &&
         (localStorage.setItem('token', data.signIn.token), localStorage.setItem('user', data.signIn.profile.username))
