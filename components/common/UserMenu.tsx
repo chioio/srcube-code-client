@@ -1,24 +1,43 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Popover, Transition } from '@headlessui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMeteor as fasMeteor, faSignOutAlt as fasSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 
 import { userProfileState } from '@lib/store/atoms'
+import { useWindowMounted } from '@lib/hooks'
+import { useLazyQuery, useQuery } from '@apollo/client'
+import { FIND_USER } from '@lib/api/queries'
 
 export interface UserMenuProps {}
 
 export const UserMenu: React.VFC<UserMenuProps> = () => {
   const router = useRouter()
-  const profile = useRecoilValue(userProfileState)
+
+  const isWindowMounted = useWindowMounted()
+
+  const [profile, setUserProfile] = useRecoilState(userProfileState)
+
+  const [findUser] = useLazyQuery(FIND_USER, {
+    variables: {
+      username: isWindowMounted && localStorage.getItem('user'),
+    },
+    onCompleted: (data) => {
+      setUserProfile(data.user)
+    },
+  })
 
   const handleSignOut = () => {
-    typeof window !== 'undefined' && localStorage.removeItem('token')
+    isWindowMounted && localStorage.removeItem('token')
     router.push('/')
   }
+
+  useEffect(() => {
+    isWindowMounted && findUser()
+  }, [isWindowMounted])
 
   const styles = {
     item: {
@@ -51,7 +70,7 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
           <p className="mb-1 text-xl font-bold">{profile.nickname || `${profile.firstName} ${profile.lastName}`}</p>
           <ul className="select-none font-semibold text-gray-600">
             <li className={`py-1.5 border-b ${styles.item.li}`}>
-              <Link href="/coding">
+              <Link href="/create">
                 <p className={styles.item.p}>
                   <FontAwesomeIcon icon={fasMeteor} className="mr-1" /> New Creation
                 </p>

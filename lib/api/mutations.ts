@@ -9,6 +9,7 @@ export const SIGN_IN_MUTATION = gql`
         nickname
         firstName
         lastName
+        avatar
         roles
       }
     }
