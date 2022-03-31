@@ -1,10 +1,12 @@
 import { useRouter } from 'next/router'
+import { useRecoilState } from 'recoil'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMeteor } from '@fortawesome/free-solid-svg-icons'
 
 import { Logo, UserMenu } from '@components/common'
 import { useWindowMounted } from '@lib/hooks'
+import { creationState } from '@lib/store/atoms'
 
 interface HeaderProps {}
 
@@ -12,6 +14,21 @@ export const Header: React.VFC<HeaderProps> = () => {
   const router = useRouter()
 
   const isWindowMounted = useWindowMounted()
+
+  const [, setCreation] = useRecoilState(creationState)
+
+  const handleNavToCreate = () => {
+    setCreation({
+      title: 'Untitled',
+      author: (isWindowMounted && localStorage.getItem('user')) || '',
+      code: {
+        html: '',
+        css: '',
+        javascript: '',
+      },
+    })
+    router.push('/create')
+  }
 
   return (
     <header className="flex items-center justify-between px-4 py-2 md:py-2.5 max-h-fit border-b border-gray-200/80 bg-white">
@@ -21,7 +38,7 @@ export const Header: React.VFC<HeaderProps> = () => {
           {/* New Creation */}
           <button
             className="mr-4 px-2 md:px-4 max-h-fit align-middle border-4 rounded-lg border-blue-600 text-base md:text-lg font-medium text-blue-600 active:bg-blue-600/5 active:shadow-sm"
-            onClick={() => router.push('/coding')}
+            onClick={handleNavToCreate}
           >
             <FontAwesomeIcon icon={faMeteor} /> <span className="ml-1">NEW</span>
           </button>

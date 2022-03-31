@@ -1,6 +1,6 @@
 import { useRecoilState } from 'recoil'
 
-import { codeState } from '@lib/store/atoms'
+import { creationState } from '@lib/store/atoms'
 import MonacoEditor, { loader, EditorProps as MonacoEditorProps, OnMount, OnChange } from '@monaco-editor/react'
 
 loader.config({
@@ -17,18 +17,18 @@ interface CodeEditorProps {
 }
 
 export const Editor: React.VFC<CodeEditorProps> = ({ lang, hint }) => {
-  const [code, setCode] = useRecoilState(codeState)
+  const [creation, setCreation] = useRecoilState(creationState)
 
   const handleOnMount: OnMount = (editor, monaco) => {
     switch (lang) {
       case 'html':
-        code.html && editor.setValue(code.html)
+        creation.code.html && editor.setValue(creation.code.html)
         break
       case 'css':
-        code.css && editor.setValue(code.css)
+        creation.code.css && editor.setValue(creation.code.css)
         break
       case 'javascript':
-        code.javascript && editor.setValue(code.javascript)
+        creation.code.javascript && editor.setValue(creation.code.javascript)
         break
     }
   }
@@ -36,13 +36,13 @@ export const Editor: React.VFC<CodeEditorProps> = ({ lang, hint }) => {
   const handleOnChange: OnChange = (value, event) => {
     switch (lang) {
       case 'html':
-        setCode({ html: value, css: code.css, javascript: code.javascript })
+        setCreation({ ...creation, code: { ...creation.code, html: value } })
         break
       case 'css':
-        setCode({ html: code.html, css: value, javascript: code.javascript })
+        setCreation({ ...creation, code: { ...creation.code, css: value } })
         break
       case 'javascript':
-        setCode({ html: code.html, css: code.css, javascript: value })
+        setCreation({ ...creation, code: { ...creation.code, javascript: value } })
         break
     }
   }

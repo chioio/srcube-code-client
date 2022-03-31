@@ -1,18 +1,16 @@
-interface PreviewPanelProps {
-  code: {
-    html: string | undefined
-    css: string | undefined
-    javascript: string | undefined
-  }
-  title: string | undefined
-}
+import { creationState } from '@lib/store/atoms'
+import { useRecoilValue } from 'recoil'
 
-export const PreviewPanel: React.VFC<PreviewPanelProps> = ({ code, title }) => {
+interface PreviewPanelProps {}
+
+export const PreviewPanel: React.VFC<PreviewPanelProps> = () => {
+  const creation = useRecoilValue(creationState)
+
   return (
     <iframe
-      title={title}
+      title={creation.title}
       className="w-full h-full bg-white "
-      srcDoc={generateHtmlDoc({ title, ...code })}
+      srcDoc={generateHtmlDoc({ ...creation, ...creation.code })}
       sandbox="allow-popups-to-escape-sandbox allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-modals allow-same-origin"
     />
   )

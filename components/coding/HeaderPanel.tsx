@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -10,20 +10,40 @@ import {
   faTimes as fasTimes,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { viewDirectionState, workState } from '@lib/store/atoms'
+import { viewDirectionState, creationState } from '@lib/store/atoms'
 import { Dialog, Transition } from '@headlessui/react'
 import { LogoIcon, UserMenu } from '@components/common'
+import { useMutation } from '@apollo/client'
+import { CREATE_CREATION_MUTATION, UPDATE_CREATION_MUTATION } from '@lib/api/mutations'
+import { CreateCreationInput, Creation } from '@lib/api/schema'
+import { Result } from '@lib/api/graphql'
+import { useRouter } from 'next/router'
 
 export const HeaderPanel: React.VFC<any> = () => {
+  const router = useRouter()
+
+  const [, setCreation] = useRecoilState(creationState)
+
+  const handleLogoClick = () => {
+    setCreation({
+      title: '',
+      author: '',
+      code: {
+        html: '',
+        css: '',
+        javascript: '',
+      },
+    })
+    router.push('/')
+  }
+
   return (
     <header className="flex items-center px-4 py-2 bg-white dark:bg-gray-900/90">
-      <Link href="/" passHref>
-        <a>
-          <LogoIcon />
-        </a>
-      </Link>
+      <button onClick={handleLogoClick}>
+        <LogoIcon />
+      </button>
       {/* Work Info */}
-      <WorkTitle />
+      <CreationTitle />
       {/* Work Control */}
       <div className="flex">
         <SaveButton />
@@ -37,9 +57,38 @@ export const HeaderPanel: React.VFC<any> = () => {
 }
 
 export const SaveButton: React.VFC<any> = () => {
-  const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('SAVE')
+  const creation = useRecoilValue(creationState)
+
+  const router = useRouter()
+  const query = router.query
+
+  const [createCreation] = useMutation<Result<Creation>>(CREATE_CREATION_MUTATION, {
+    onCompleted: (data) => {
+      console.log(data.createCreation.author)
+      router.push('/[username]/creation/[_id]', `/${data.createCreation.author}/creation/${data.createCreation._id}`)
+    },
+  })
+
+  const [updateCreation] = useMutation<Result<Creation>>(UPDATE_CREATION_MUTATION, {
+    onCompleted: (data) => {},
+  })
+
+  const handleSave = () => {
+    if (query._id) {
+      updateCreation({
+        variables: {
+          input: { ...creation },
+        },
+      })
+    } else {
+      createCreation({
+        variables: {
+          input: { ...creation },
+        },
+      })
+    }
   }
+  
   return (
     <button
       onClick={handleSave}
@@ -51,10 +100,10 @@ export const SaveButton: React.VFC<any> = () => {
   )
 }
 
-export const WorkTitle: React.VFC<any> = () => {
+export const CreationTitle: React.VFC<any> = () => {
   const [isEditable, setIsEditable] = useState<boolean>(false)
 
-  const [work, setWork] = useRecoilState(workState)
+  const [creation, setCreation] = useRecoilState(creationState)
 
   return (
     <div className="flex-grow ml-3">
@@ -64,14 +113,14 @@ export const WorkTitle: React.VFC<any> = () => {
             id="editable-title-input"
             onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
               setIsEditable(false)
-              e.target.value && setWork({ title: e.target.value, author: work.author, code: work.code })
+              e.target.value && setCreation({ ...creation, title: e.target.value })
             }}
             className="text-lg font-bold outline-none"
             autoFocus
           />
         ) : (
           <>
-            <span className="text-lg font-bold">{work.title}</span>
+            <span className="text-lg font-bold">{creation.title}</span>
             <FontAwesomeIcon
               icon={fasPencilAlt}
               onClick={() => {
@@ -82,7 +131,7 @@ export const WorkTitle: React.VFC<any> = () => {
           </>
         )}
       </h2>
-      <p className="text-sm font-medium opacity-40">{work.author}</p>
+      <p className="text-sm font-medium opacity-40">{creation.author}</p>
     </div>
   )
 }

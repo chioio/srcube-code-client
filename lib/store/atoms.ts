@@ -12,33 +12,21 @@ export const userProfileState = atom<UserProfileOutput>({
     avatar: 'https://picsum.photos/300',
   },
 })
-
-export interface CodeState {
-  html: string | undefined
-  css: string | undefined
-  javascript: string | undefined
-}
-
-export const codeState = atom<CodeState>({
-  key: 'codeState',
-  default: {
-    html: '<h1>Hello World</h1>',
-    css: '',
-    javascript: '',
-  },
-})
-
-export interface WorkState {
+export interface CreationState {
   title: string
   author: string | undefined
-  code: CodeState
+  code: {
+    html: string | undefined
+    css: string | undefined
+    javascript: string | undefined
+  }
 }
 
-export const workState = atom<WorkState>({
-  key: 'workState',
+export const creationState = atom<CreationState>({
+  key: 'creationState',
   default: {
     title: 'Untitled',
-    author: 'author',
+    author: 'chioio',
     code: {
       html: '<h1>Hello World</h1>',
       css: '',
@@ -51,5 +39,5 @@ export type ViewDirectionState = 'left' | 'top' | 'right'
 
 export const viewDirectionState = atom<ViewDirectionState>({
   key: 'viewState',
-  default: 'left',
+  default: 'top',
 })
