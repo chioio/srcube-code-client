@@ -10,7 +10,8 @@
 export enum UserRole {
     ROOT = "ROOT",
     ADMIN = "ADMIN",
-    USER = "USER"
+    USER = "USER",
+    type = "type"
 }
 
 export enum AccountType {
@@ -57,27 +58,33 @@ export interface SignUpInput {
 export interface CreateCreationInput {
     title?: Nullable<string>;
     author: string;
-    code?: Nullable<CreationCodeInput>;
+    code?: Nullable<CreateCodeInput>;
 }
 
-export interface CreationCodeInput {
+export interface CreateCodeInput {
     html?: Nullable<string>;
     css?: Nullable<string>;
     javascript?: Nullable<string>;
 }
 
 export interface UpdateCreationInput {
+    _id?: string;
     title?: Nullable<string>;
-    author?: Nullable<string>;
-    code?: Nullable<CreationCodeInput>;
-    id: number;
+    author?: string;
+    code?: Nullable<UpdateCodeInput>;
+}
+
+export interface UpdateCodeInput {
+    html?: Nullable<string>;
+    css?: Nullable<string>;
+    javascript?: Nullable<string>;
 }
 
 export interface User {
+    _id: string;
     email: string;
     username: string;
     password: string;
-    nickname?: Nullable<string>;
     firstName: string;
     lastName: string;
     avatar: string;
@@ -92,7 +99,6 @@ export interface ExistedCheckOutput {
 
 export interface UserProfileOutput {
     username: string;
-    nickname?: Nullable<string>;
     firstName: string;
     lastName: string;
     avatar: string;
@@ -132,7 +138,8 @@ export interface IQuery {
     user(username: string): User | Promise<User>;
     whoAmI(): User | Promise<User>;
     existedCheck(input: ExistedCheckInput): ExistedCheckOutput | Promise<ExistedCheckOutput>;
-    creation(id: number): Creation | Promise<Creation>;
+    creations(): Creation[] | Promise<Creation[]>;
+    creation(_id: string): Creation | Promise<Creation>;
 }
 
 export interface IMutation {
@@ -142,7 +149,7 @@ export interface IMutation {
     signOut(): SignOutOutput | Promise<SignOutOutput>;
     signUp(input: SignUpInput): SignUpOutput | Promise<SignUpOutput>;
     createCreation(input: CreateCreationInput): Creation | Promise<Creation>;
-    updateCreation(input: UpdateCreationInput): Creation | Promise<Creation>;
+    updateCreation(updateCreationInput: UpdateCreationInput): boolean | Promise<boolean>;
     removeCreation(id: number): Creation | Promise<Creation>;
 }
 

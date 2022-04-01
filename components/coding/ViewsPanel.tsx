@@ -5,16 +5,6 @@ import { PreviewPanel } from './PreviewPanel'
 const GUTTER_SIZE = 16
 const SNAP_OFFSET = 0
 
-export const CodePanels: React.VFC<any> = () => {
-  return (
-    <>
-      <CodePanel lang="html" />
-      <CodePanel lang="css" />
-      <CodePanel lang="javascript" />
-    </>
-  )
-}
-
 export const TopView: React.VFC<any> = () => {
   return (
     <Split
@@ -33,7 +23,9 @@ export const TopView: React.VFC<any> = () => {
         cursor="col-resize"
         className="flex flex-row px-3 pt-3 bg-gray-100 split-panel"
       >
-        <CodePanels />
+        <CodePanel lang="html" />
+        <CodePanel lang="css" />
+        <CodePanel lang="javascript" />
       </Split>
       <PreviewPanel />
     </Split>
@@ -59,7 +51,9 @@ export const LeftView: React.VFC<any> = () => {
         cursor="row-resize"
         className="py-3 pl-3 bg-gray-100 split-panel"
       >
-        <CodePanels />
+        <CodePanel lang="html" />
+        <CodePanel lang="css" />
+        <CodePanel lang="javascript" />
       </Split>
       <PreviewPanel />
     </Split>
@@ -86,7 +80,9 @@ export const RightView: React.VFC<any> = () => {
         cursor="row-resize"
         className="py-3 pr-3 bg-gray-100 split-panel"
       >
-        <CodePanels />
+        <CodePanel lang="html" />
+        <CodePanel lang="css" />
+        <CodePanel lang="javascript" />
       </Split>
     </Split>
   )

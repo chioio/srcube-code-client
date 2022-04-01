@@ -43,17 +43,6 @@ export const CREATE_CREATION_MUTATION = gql`
 
 export const UPDATE_CREATION_MUTATION = gql`
   mutation UpdateCreation($input: UpdateCreationInput!) {
-    updateCreation(input: $input) {
-      _id
-      title
-      author
-      code {
-        html
-        css
-        javascript
-      }
-      createdAt
-      updatedAt
-    }
+    updateCreation(input: $input)
   }
 `

@@ -7,10 +7,10 @@ import { Popover, Transition } from '@headlessui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMeteor as fasMeteor, faSignOutAlt as fasSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 
-import { userProfileState } from '@lib/store/atoms'
+import { creationState, userProfileState } from '@lib/store/atoms'
 import { useWindowMounted } from '@lib/hooks'
-import { useLazyQuery, useQuery } from '@apollo/client'
-import { FIND_USER } from '@lib/api/queries'
+import { useLazyQuery } from '@apollo/client'
+import { GET_USER_QUERY } from '@lib/api/queries'
 
 export interface UserMenuProps {}
 
@@ -20,15 +20,32 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
   const isWindowMounted = useWindowMounted()
 
   const [profile, setUserProfile] = useRecoilState(userProfileState)
+  const [,setCreation] = useRecoilState(creationState)
 
-  const [findUser] = useLazyQuery(FIND_USER, {
+  const [findUser] = useLazyQuery(GET_USER_QUERY, {
     variables: {
       username: isWindowMounted && localStorage.getItem('user'),
     },
     onCompleted: (data) => {
-      setUserProfile(data.user)
+      data && setUserProfile(data.user)
     },
   })
+
+  const handleNavToCreate = () => {
+    setCreation({
+      _id: '',
+      title: 'Untitled',
+      author: (isWindowMounted && localStorage.getItem('user')) || '',
+      code: {
+        html: '',
+        css: '',
+        javascript: '',
+      },
+      createdAt: '',
+      updatedAt: '',
+    })
+    router.push('/create')
+  }
 
   const handleSignOut = () => {
     isWindowMounted && localStorage.removeItem('token')
@@ -67,14 +84,14 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
           className="absolute right-0 top-11 md:top-12 z-10 px-4 py-3 mt-2 w-52 md:w-56 rounded-lg border-t-[0.25rem] border-blue-600 bg-white shadow-lg 
           before:absolute before:-top-3 before:right-3 before:border-l-[0.5rem] before:border-r-[0.5rem] before:border-l-transparent before:border-r-transparent before:border-b-8 before:border-b-blue-600"
         >
-          <p className="mb-1 text-xl font-bold">{profile.nickname || `${profile.firstName} ${profile.lastName}`}</p>
+          <p className="mb-1 text-xl font-bold">{`${profile.firstName} ${profile.lastName}`}</p>
           <ul className="select-none font-semibold text-gray-600">
             <li className={`py-1.5 border-b ${styles.item.li}`}>
-              <Link href="/create">
+              <button onClick={handleNavToCreate}>
                 <p className={styles.item.p}>
                   <FontAwesomeIcon icon={fasMeteor} className="mr-1" /> New Creation
                 </p>
-              </Link>
+              </button>
             </li>
             <li className={`pt-1.5 ${styles.item.li}`}>
               <Link href={`/${encodeURIComponent(profile.username)}`}>

@@ -91,13 +91,7 @@ const SignUp: NextPage = () => {
   const submitHandler: SubmitHandler<Fields> = ({ confirmPassword, ...rest }) => {
     signUp({
       variables: {
-        input: {
-          firstName: rest.firstName,
-          lastName: rest.lastName,
-          email: rest.email,
-          username: rest.username,
-          password: rest.password,
-        },
+        input: rest,
       },
     })
   }

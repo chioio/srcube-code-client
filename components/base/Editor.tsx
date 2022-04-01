@@ -19,32 +19,33 @@ interface CodeEditorProps {
 export const Editor: React.VFC<CodeEditorProps> = ({ lang, hint }) => {
   const [creation, setCreation] = useRecoilState(creationState)
 
-  const handleOnMount: OnMount = (editor, monaco) => {
+  const handleOnMount: OnMount = (editor) => {
     switch (lang) {
       case 'html':
-        creation.code.html && editor.setValue(creation.code.html)
+        creation?.code.html && editor.setValue(creation.code.html)
         break
       case 'css':
-        creation.code.css && editor.setValue(creation.code.css)
+        creation?.code.css && editor.setValue(creation.code.css)
         break
       case 'javascript':
-        creation.code.javascript && editor.setValue(creation.code.javascript)
+        creation?.code.javascript && editor.setValue(creation.code.javascript)
         break
     }
   }
 
   const handleOnChange: OnChange = (value, event) => {
-    switch (lang) {
-      case 'html':
-        setCreation({ ...creation, code: { ...creation.code, html: value } })
-        break
-      case 'css':
-        setCreation({ ...creation, code: { ...creation.code, css: value } })
-        break
-      case 'javascript':
-        setCreation({ ...creation, code: { ...creation.code, javascript: value } })
-        break
-    }
+    if (creation)
+      switch (lang) {
+        case 'html':
+          setCreation({ ...creation, code: { ...creation.code, html: value } })
+          break
+        case 'css':
+          setCreation({ ...creation, code: { ...creation.code, css: value } })
+          break
+        case 'javascript':
+          setCreation({ ...creation, code: { ...creation.code, javascript: value } })
+          break
+      }
   }
 
   return (

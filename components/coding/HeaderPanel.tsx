@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
@@ -15,9 +14,10 @@ import { Dialog, Transition } from '@headlessui/react'
 import { LogoIcon, UserMenu } from '@components/common'
 import { useMutation } from '@apollo/client'
 import { CREATE_CREATION_MUTATION, UPDATE_CREATION_MUTATION } from '@lib/api/mutations'
-import { CreateCreationInput, Creation } from '@lib/api/schema'
-import { Result } from '@lib/api/graphql'
+import { Creation, UpdateCreationInput } from '@lib/api/schema'
+import { Result, Variables } from '@lib/api/graphql'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 
 export const HeaderPanel: React.VFC<any> = () => {
   const router = useRouter()
@@ -26,6 +26,7 @@ export const HeaderPanel: React.VFC<any> = () => {
 
   const handleLogoClick = () => {
     setCreation({
+      _id: '',
       title: '',
       author: '',
       code: {
@@ -33,6 +34,8 @@ export const HeaderPanel: React.VFC<any> = () => {
         css: '',
         javascript: '',
       },
+      createdAt: '',
+      updatedAt: '',
     })
     router.push('/')
   }
@@ -57,27 +60,47 @@ export const HeaderPanel: React.VFC<any> = () => {
 }
 
 export const SaveButton: React.VFC<any> = () => {
-  const creation = useRecoilValue(creationState)
+  const [creation, setCreation] = useRecoilState(creationState)
 
   const router = useRouter()
   const query = router.query
 
   const [createCreation] = useMutation<Result<Creation>>(CREATE_CREATION_MUTATION, {
     onCompleted: (data) => {
-      console.log(data.createCreation.author)
-      router.push('/[username]/creation/[_id]', `/${data.createCreation.author}/creation/${data.createCreation._id}`)
+      if (data) {
+        setCreation(data.creation)
+        toast.success('Save Success!')
+        router.push('/[username]/creation/[_id]', `/${data.createCreation.author}/creation/${data.createCreation._id}`)
+      } else {
+        toast.error('Save Failure!')
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message)
     },
   })
 
-  const [updateCreation] = useMutation<Result<Creation>>(UPDATE_CREATION_MUTATION, {
-    onCompleted: (data) => {},
+  const [updateCreation] = useMutation<Result<Creation>, Variables<UpdateCreationInput>>(UPDATE_CREATION_MUTATION, {
+    onCompleted: (data) => {
+      data && toast.success('Save Success!')
+    },
   })
 
   const handleSave = () => {
     if (query._id) {
+      // const { createdAt, updatedAt, ...rest } = creation as Creation
       updateCreation({
         variables: {
-          input: { ...creation },
+          input: {
+            _id: creation._id,
+            title: creation.title,
+            author: creation.author,
+            code: {
+              html: creation.code.html,
+              css: creation.code.css,
+              javascript: creation.code.javascript,
+            },
+          },
         },
       })
     } else {
@@ -88,7 +111,7 @@ export const SaveButton: React.VFC<any> = () => {
       })
     }
   }
-  
+
   return (
     <button
       onClick={handleSave}
@@ -104,6 +127,7 @@ export const CreationTitle: React.VFC<any> = () => {
   const [isEditable, setIsEditable] = useState<boolean>(false)
 
   const [creation, setCreation] = useRecoilState(creationState)
+  const [title, setTitle] = useState(creation.title)
 
   return (
     <div className="flex-grow ml-3">
@@ -113,14 +137,17 @@ export const CreationTitle: React.VFC<any> = () => {
             id="editable-title-input"
             onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
               setIsEditable(false)
-              e.target.value && setCreation({ ...creation, title: e.target.value })
+              title && setCreation({ ...creation, title })
+              title || setTitle(creation.title)
             }}
+            value={title}
+            onChange={(e: React.FocusEvent<HTMLInputElement>) => setTitle(e.target.value)}
             className="text-lg font-bold outline-none"
             autoFocus
           />
         ) : (
           <>
-            <span className="text-lg font-bold">{creation.title}</span>
+            <span className="text-lg font-bold">{creation?.title}</span>
             <FontAwesomeIcon
               icon={fasPencilAlt}
               onClick={() => {
@@ -131,7 +158,7 @@ export const CreationTitle: React.VFC<any> = () => {
           </>
         )}
       </h2>
-      <p className="text-sm font-medium opacity-40">{creation.author}</p>
+      <p className="text-sm font-medium opacity-40">{creation?.author}</p>
     </div>
   )
 }

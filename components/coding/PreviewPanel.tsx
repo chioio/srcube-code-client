@@ -8,9 +8,9 @@ export const PreviewPanel: React.VFC<PreviewPanelProps> = () => {
 
   return (
     <iframe
-      title={creation.title}
+      title={creation?.title}
       className="w-full h-full bg-white "
-      srcDoc={generateHtmlDoc({ ...creation, ...creation.code })}
+      srcDoc={generateHtmlDoc({ ...creation, ...creation?.code })}
       sandbox="allow-popups-to-escape-sandbox allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-modals allow-same-origin"
     />
   )

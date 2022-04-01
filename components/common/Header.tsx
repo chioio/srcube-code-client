@@ -19,6 +19,7 @@ export const Header: React.VFC<HeaderProps> = () => {
 
   const handleNavToCreate = () => {
     setCreation({
+      _id: '',
       title: 'Untitled',
       author: (isWindowMounted && localStorage.getItem('user')) || '',
       code: {
@@ -26,6 +27,8 @@ export const Header: React.VFC<HeaderProps> = () => {
         css: '',
         javascript: '',
       },
+      createdAt: '',
+      updatedAt: ''
     })
     router.push('/create')
   }
