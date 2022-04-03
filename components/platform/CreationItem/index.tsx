@@ -23,18 +23,16 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true }) 
 
   const styles = {
     meta: {
-      button: `${
-        !isCommon ? 'ml-3.5' : ''
-      } px-2 space-x-1 rounded font-semibold bg-black/5 hover:bg-black/20`,
+      button: `${!isCommon ? 'ml-3.5' : ''} px-2 space-x-1 rounded font-semibold bg-black/5 hover:bg-black/20`,
     },
   }
 
   return (
     <article
-      className={`group relative p-3.5 -z-0 w-full h-fit 
-      hover:after:inset-0 hover:after:rounded-2xl 
+      className={`group relative p-3.5 -z-0 w-full h-fit
+      hover:after:inset-0 hover:after:rounded-2xl
       after:absolute after:top-7 ${
-        isCommon ? 'after:left-7' : 'after:left-3.5'
+        isCommon ? 'after:left-7 after:bottom-4' : 'after:left-3.5'
       } after:right-0 after:bottom-0 after:rounded-lg after:-z-10 after:bg-gray-200/60 after:transition-all after:duration-300`}
     >
       <Preview />
@@ -53,7 +51,9 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true }) 
         </div>
         <div
           className={`${
-            isCommon ? 'relative left-7 hidden group-hover:block group-hover:left-0 transition-all delay-200 duration-300' : 'block'
+            isCommon
+              ? 'relative left-7 opacity-0 group-hover:opacity-100 group-hover:left-0 transition-all delay-75 duration-500'
+              : 'block'
           } mt-2 -mb-1 space-x-2`}
         >
           <button onClick={handleStar} className={styles.meta.button}>
