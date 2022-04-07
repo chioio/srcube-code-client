@@ -5,7 +5,7 @@ export const ENDPOINT = 'http://localhost:4000/graphql'
 export const client = new ApolloClient({
   ssrMode: true,
   uri: ENDPOINT,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({ addTypename: false}),
 })
 
 export interface Variables<T> {

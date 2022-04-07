@@ -10,7 +10,7 @@ import { useQuery } from '@apollo/client'
 import { GET_CREATION_QUERY } from '@lib/api/queries'
 import { Creation } from '@lib/api/schema'
 import { Result } from '@lib/api/graphql'
-import { useEffect } from 'react'
+import toast from 'react-hot-toast'
 
 const EditCreation: NextPage = ({}) => {
   const direction = useRecoilValue(viewDirectionState)
@@ -19,12 +19,15 @@ const EditCreation: NextPage = ({}) => {
   const router = useRouter()
   const { query } = router
 
-  const { data } = useQuery<Result<Creation>>(GET_CREATION_QUERY, {
+  const { data, loading } = useQuery<Result<Creation>>(GET_CREATION_QUERY, {
     variables: {
       _id: query._id,
     },
     onCompleted: (data) => {
-      data && setCreation(data.creation)
+      if (data.creation) {
+        setCreation(data.creation)
+        toast.success('Get creation success!')
+      }
     },
   })
 
@@ -41,7 +44,7 @@ const EditCreation: NextPage = ({}) => {
         <HeaderPanel />
         {/* CONTENT */}
         <MainPanel>
-          {creation._id ? (
+          {!loading ? (
             direction === 'top' ? (
               <TopView />
             ) : direction === 'left' ? (

@@ -64,7 +64,7 @@ const Profile: NextPage = () => {
           <div className="h-72 bg-sky-400 bg-[url('/img/bg-layout-light.svg')]"></div>
           <div className="px-20 xl:px-44 grid grid-cols-12 gap-x-8">
             <div className="-mt-32 lg:-mt-44 px-4 pb-20 col-span-4 2xl:col-span-3">
-              <img src={profile.avatar} alt="" className="w-full rounded-full border-8 border-white" />
+              <img src={profile.avatar} alt="" className="w-full rounded-full border-8 bg-white border-white" />
               <div className="my-8 max-w-fit">
                 <h1 className="inline text-center">{profile.firstName + ' ' + profile.lastName}</h1>
                 <p className="text-lg font-medium text-gray-400">@{profile.username}</p>

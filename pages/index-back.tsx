@@ -10,22 +10,22 @@ import { Result } from '@lib/api/graphql'
 import { GET_CREATIONS_QUERY } from '@lib/api/queries'
 import { CreationEdge, CreationsOutput, Nullable } from '@lib/api/schema'
 import { useWindowMounted } from '@lib/hooks'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const Home: NextPage = () => {
   const isWindowMounted = useWindowMounted()
 
-  const carouselRef = useRef<HTMLDivElement>(null)
-
   const [creations, setCreations] = useState<{
     pre?: Nullable<CreationEdge[]>
     cur?: Nullable<CreationEdge[]>
-    nex?: Nullable<CreationEdge[]>
+    next?: Nullable<CreationEdge[]>
   }>({
     pre: [],
     cur: [],
-    nex: [],
+    next: [],
   })
+
+  const [position, setPosition] = useState([-1, 0, 1])
 
   const {} = useQuery<Result<CreationsOutput>>(GET_CREATIONS_QUERY, {
     variables: {
@@ -34,8 +34,9 @@ const Home: NextPage = () => {
     onCompleted: (data) => {
       if (data) {
         const [edges, count] = [data.creations.page.edges, data.creations.pageData?.count || 0]
-        const [cur, nex] = count > 4 ? [edges?.slice(0, 4), edges?.slice(4, 8)] : [edges, []]
-        setCreations({ ...creations, cur, nex })
+        const [cur, next] = count > 6 ? [edges?.slice(0, 4), edges?.slice(4, 8)] : [edges, []]
+        console.log(cur, next)
+        setCreations({ ...creations, cur, next })
       }
     },
   })
@@ -43,45 +44,23 @@ const Home: NextPage = () => {
   const [getCreations, { data }] = useLazyQuery<Result<CreationsOutput>>(GET_CREATIONS_QUERY, {})
 
   const handlePreviews = () => {
-    setCreations({ ...creations, pre: [] })
-
-    if (carouselRef.current) {
-      const node = carouselRef.current.children[2]
-      carouselRef.current.removeChild(carouselRef.current.children[2])
-      carouselRef.current.prepend(node)
-      carouselRef.current.children[0].setAttribute('data-position', '-1')
-      carouselRef.current.children[1].setAttribute('data-position', '0')
-      carouselRef.current.children[2].setAttribute('data-position', '1')
-    }
+    setPosition([1, 0, -1])
+    // setCreations({ pre: [], cur: creations.pre, next: creations.cur })
   }
 
   const handleNext = () => {
-    setCreations({ ...creations, pre: creations.cur })
-
-    if (carouselRef.current) {
-      const node = carouselRef.current.children[0]
-      carouselRef.current.removeChild(carouselRef.current.children[0])
-      carouselRef.current.append(node)
-      carouselRef.current.children[0].setAttribute('data-position', '-1')
-      carouselRef.current.children[1].setAttribute('data-position', '0')
-      carouselRef.current.children[2].setAttribute('data-position', '1')
-    }
+    setPosition([-1, 0, 1])
+    // setCreations({ pre: creations.cur, cur: creations.next, next: [] })
   }
-
   useEffect(() => {
     if (isWindowMounted) {
-      console.log(carouselRef.current)
     }
   }, [isWindowMounted])
-
-  useEffect(() => {
-    console.log(creations.pre)
-  }, [creations])
 
   const styles = {
     control: {
       button:
-        'group absolute h-full w-48 z-20 px-3 py-4 text-4xl text-white transition-all before:relative before:top-0 before:w-[50vw] before:h-full before:bg-gray-100/40 before:backdrop-blur-sm hover:before:backdrop-blur-none',
+        'group absolute h-full w-48 z-20 px-3 py-4 text-4xl text-white transition-all before:absolute before:top-0 before:w-[50vw] before:h-full before:bg-gray-100/40 before:backdrop-blur-sm hover:before:backdrop-blur-none',
       icon: 'relative px-4 py-6 bg-gray-300 rounded-lg group-active:bg-blue-600 group-active:ring-4 group-active:ring-blue-600/40',
     },
   }
@@ -98,14 +77,26 @@ const Home: NextPage = () => {
         {/* HEADER */}
         <Header />
 
-        <Main decorated>
+        <Main>
           <div className="relative h-full w-full max-w-screen-xl mx-auto flex flex-col bg-gray-50">
+            {/* <label className="relative block w-3/6 mx-auto my-8">
+              <span className="sr-only">Search</span>
+              <span className="absolute inset-y-0 left-3 flex items-center pl-2">
+                <FontAwesomeIcon icon={faSearch} className="text-3xl text-gray-300" />
+              </span>
+              <input
+                className="placeholder:italic placeholder:text-slate-400 block text-2xl font-bold bg-white w-full border border-slate-300 rounded-xl py-4 pl-16 pr-3 shadow-sm focus:outline-none focus:border-blue-600 focus:ring-blue-600/60 focus:ring-4"
+                placeholder="Search for creation..."
+                type="text"
+                name="search"
+              />
+            </label> */}
             {/* CONTROL */}
-            {creations.pre?.length !== 0 && (
+            {/* {creations.pre?.length !== 0 && ( */}
               <button onClick={handlePreviews} className={`${styles.control.button} left-0 before:right-0`}>
                 <FontAwesomeIcon icon={faAngleLeft} className={styles.control.icon} />
               </button>
-            )}
+            {/* )} */}
             <button onClick={handleNext} className={`${styles.control.button} right-0 before:left-0`}>
               <FontAwesomeIcon icon={faAngleRight} className={styles.control.icon} />
             </button>
@@ -116,16 +107,16 @@ const Home: NextPage = () => {
                   <h1 className="text-4xl font-bold">Trending</h1>
                 </div>
               </div>
-              <div
-                ref={carouselRef}
-                className={`grid grid-rows-[minmax(0,100%)] grid-cols-[minmax(0,100%)] -translate-x-20 px-20 w-full h-fit transition-transform ${
-                  creations.pre?.length ? 'translate-x-2' : ''
-                }`}
-              >
-                {creations &&
-                  Object.entries(creations).map(([_, value], index) => {
-                    return <Slide key={index} pos={index - 1} creations={value} />
-                  })}
+              <div className="grid grid-rows-[minmax(0,100%)] grid-cols-[minmax(0,100%)] -translate-x-20 px-20 w-full h-fit transition-transform">
+                <div className={`grid row-start-1 col-start-1 grid-rows-2 grid-cols-2 gap-4 p-4 -translate-x-full ${position[0] === -1 ? 'translate-x-full': ''}`}>
+                  {creations.pre && creations.pre.map((item, index) => <CreationItem creation={item} key={index} />)}
+                </div>
+                <div className="grid row-start-1 col-start-1 grid-rows-[minmax(0,100%)] grid-cols-2 gap-x-4 gap-y-6 p-4 bg-white rounded-2xl dark:bg-gray-900">
+                  {creations.cur && creations.cur.map((item, index) => <CreationItem creation={item} key={index} />)}
+                </div>
+                <div className="grid row-start-1 col-start-1 grid-rows-2 grid-cols-2 gap-4 p-4 translate-x-full">
+                  {creations.next && creations.next.map((item, index) => <CreationItem creation={item} key={index} />)}
+                </div>
               </div>
             </div>
           </div>
@@ -140,12 +131,8 @@ const Carousel: React.VFC<{ slide: Object }> = ({ slide }) => {
   return <div className=""></div>
 }
 
-const Slide: React.VFC<{ creations: Nullable<CreationEdge[]>; pos: number }> = ({ creations, pos }) => {
-  return (
-    <div data-position={pos} className="grid row-start-1 col-start-1 grid-rows-2 grid-cols-2 gap-4 p-4 slide">
-      {creations ? creations.map((item, index) => <CreationItem creation={item} key={index} />) : <h1>Hello</h1>}
-    </div>
-  )
+const Slide: React.VFC<{ item: Object }> = ({ item }) => {
+  return <div className=""></div>
 }
 
 export default Home

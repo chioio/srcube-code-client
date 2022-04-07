@@ -6,7 +6,6 @@ export const SIGN_IN_MUTATION = gql`
       token
       profile {
         username
-        nickname
         firstName
         lastName
         avatar

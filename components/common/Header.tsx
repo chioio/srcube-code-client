@@ -15,21 +15,7 @@ export const Header: React.VFC<HeaderProps> = () => {
 
   const isWindowMounted = useWindowMounted()
 
-  const [, setCreation] = useRecoilState(creationState)
-
   const handleNavToCreate = () => {
-    setCreation({
-      _id: '',
-      title: 'Untitled',
-      author: (isWindowMounted && localStorage.getItem('user')) || '',
-      code: {
-        html: '',
-        css: '',
-        javascript: '',
-      },
-      createdAt: '',
-      updatedAt: ''
-    })
     router.push('/create')
   }
 

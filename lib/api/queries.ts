@@ -39,3 +39,46 @@ export const GET_CREATION_QUERY = gql`
     }
   }
 `
+
+export const GET_USER_AVATAR_QUERY = gql`
+  query User($username: String!) {
+    user(username: $username) {
+      avatar
+    }
+  }
+`
+
+export const GET_CREATIONS_QUERY = gql`
+  query Creations($before: String, $after: String, $first: Float, $last: Float) {
+    creations(before: $before, after: $after, first: $first, last: $last) {
+      page {
+        edges {
+          cursor
+          node {
+            _id
+            title
+            author
+            code {
+              html
+              css
+              javascript
+            }
+            createdAt
+            updatedAt
+          }
+        }
+        pageInfo {
+          startCursor
+          endCursor
+          hasPreviousPage
+          hasNextPage
+        }
+      }
+      pageData {
+        count
+        limit
+        offset
+      }
+    }
+  }
+`

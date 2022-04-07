@@ -52,6 +52,7 @@ export const Editor: React.VFC<CodeEditorProps> = ({ lang, hint }) => {
     <MonacoEditor
       defaultLanguage={lang}
       defaultValue={hint}
+      value={lang === 'html' ? creation?.code?.html : lang === 'css' ? creation?.code?.css : creation?.code?.javascript}
       onMount={handleOnMount}
       onChange={handleOnChange}
       options={options}

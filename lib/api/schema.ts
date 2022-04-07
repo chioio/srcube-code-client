@@ -57,7 +57,7 @@ export interface SignUpInput {
 
 export interface CreateCreationInput {
     title?: Nullable<string>;
-    author: string;
+    author?: string;
     code?: Nullable<CreateCodeInput>;
 }
 
@@ -119,9 +119,9 @@ export interface SignUpOutput {
 }
 
 export interface CreationCode {
-    html: string;
-    css: string;
-    javascript: string;
+    html?: string;
+    css?: string;
+    javascript?: string;
 }
 
 export interface Creation {
@@ -133,12 +133,40 @@ export interface Creation {
     updatedAt: DateTime;
 }
 
+export interface PageData {
+    count: number;
+    limit: number;
+    offset: number;
+}
+
+export interface CreationsOutput {
+    page: CreationConnection;
+    pageData?: Nullable<PageData>;
+}
+
+export interface CreationConnection {
+    edges?: Nullable<CreationEdge[]>;
+    pageInfo?: Nullable<CreationPageInfo>;
+}
+
+export interface CreationEdge {
+    cursor: string;
+    node: Creation;
+}
+
+export interface CreationPageInfo {
+    startCursor?: Nullable<string>;
+    endCursor?: Nullable<string>;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+}
+
 export interface IQuery {
     users(): User[] | Promise<User[]>;
     user(username: string): User | Promise<User>;
     whoAmI(): User | Promise<User>;
     existedCheck(input: ExistedCheckInput): ExistedCheckOutput | Promise<ExistedCheckOutput>;
-    creations(): Creation[] | Promise<Creation[]>;
+    creations(before?: Nullable<string>, after?: Nullable<string>, first?: Nullable<number>, last?: Nullable<number>): CreationsOutput | Promise<CreationsOutput>;
     creation(_id: string): Creation | Promise<Creation>;
 }
 
@@ -149,9 +177,9 @@ export interface IMutation {
     signOut(): SignOutOutput | Promise<SignOutOutput>;
     signUp(input: SignUpInput): SignUpOutput | Promise<SignUpOutput>;
     createCreation(input: CreateCreationInput): Creation | Promise<Creation>;
-    updateCreation(updateCreationInput: UpdateCreationInput): boolean | Promise<boolean>;
+    updateCreation(input: UpdateCreationInput): boolean | Promise<boolean>;
     removeCreation(id: number): Creation | Promise<Creation>;
 }
 
 export type DateTime = any;
-type Nullable<T> = T | null;
+export type Nullable<T> = T | null;

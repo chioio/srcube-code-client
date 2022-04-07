@@ -1,4 +1,4 @@
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -27,7 +27,7 @@ export const HeaderPanel: React.VFC<any> = () => {
   const handleLogoClick = () => {
     setCreation({
       _id: '',
-      title: '',
+      title: 'Untitled',
       author: '',
       code: {
         html: '',
@@ -88,25 +88,17 @@ export const SaveButton: React.VFC<any> = () => {
 
   const handleSave = () => {
     if (query._id) {
-      // const { createdAt, updatedAt, ...rest } = creation as Creation
+      const { createdAt, updatedAt, ...rest } = creation as Creation
       updateCreation({
         variables: {
-          input: {
-            _id: creation._id,
-            title: creation.title,
-            author: creation.author,
-            code: {
-              html: creation.code.html,
-              css: creation.code.css,
-              javascript: creation.code.javascript,
-            },
-          },
+          input: rest,
         },
       })
     } else {
+      const { _id, createdAt, updatedAt, ...rest } = creation as Creation
       createCreation({
         variables: {
-          input: { ...creation },
+          input: rest,
         },
       })
     }
@@ -127,7 +119,7 @@ export const CreationTitle: React.VFC<any> = () => {
   const [isEditable, setIsEditable] = useState<boolean>(false)
 
   const [creation, setCreation] = useRecoilState(creationState)
-  const [title, setTitle] = useState(creation.title)
+  const [title, setTitle] = useState(creation?.title)
 
   return (
     <div className="flex-grow ml-3">
