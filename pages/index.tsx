@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import React, { useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 
 import { Header, Layout, Meta, Links, Main, Footer } from '@components/common'
@@ -8,74 +9,103 @@ import { CreationItem } from '@components/platform'
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { Result } from '@lib/api/graphql'
 import { GET_CREATIONS_QUERY } from '@lib/api/queries'
-import { CreationEdge, CreationsOutput, Nullable } from '@lib/api/schema'
+import { CreationEdge, CreationPageInfo, CreationsOutput } from '@lib/api/schema'
 import { useWindowMounted } from '@lib/hooks'
-import React, { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/router'
 
 const Home: NextPage = () => {
   const isWindowMounted = useWindowMounted()
 
+  const router = useRouter()
+
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  const [creations, setCreations] = useState<{
-    pre?: Nullable<CreationEdge[]>
-    cur?: Nullable<CreationEdge[]>
-    nex?: Nullable<CreationEdge[]>
-  }>({
-    pre: [],
-    cur: [],
-    nex: [],
+  const [{ hasNextPage, hasPreviousPage, startCursor, endCursor }, setPageInfo] = useState<CreationPageInfo>({
+    hasNextPage: true,
+    hasPreviousPage: false,
+    startCursor: '',
+    endCursor: '',
   })
 
-  const {} = useQuery<Result<CreationsOutput>>(GET_CREATIONS_QUERY, {
+  const [creations, setCreations] = useState<CreationEdge[]>()
+
+  const [getCreations, { data }] = useLazyQuery<Result<CreationsOutput>>(GET_CREATIONS_QUERY, {
     variables: {
-      first: 8,
-    },
-    onCompleted: (data) => {
-      if (data) {
-        const [edges, count] = [data.creations.page.edges, data.creations.pageData?.count || 0]
-        const [cur, nex] = count > 4 ? [edges?.slice(0, 4), edges?.slice(4, 8)] : [edges, []]
-        setCreations({ ...creations, cur, nex })
-      }
+      first: 4,
     },
   })
 
-  const [getCreations, { data }] = useLazyQuery<Result<CreationsOutput>>(GET_CREATIONS_QUERY, {})
+  const handlePrevious = () => {
+    console.log('PREV')
 
-  const handlePreviews = () => {
-    setCreations({ ...creations, pre: [] })
-
-    if (carouselRef.current) {
-      const node = carouselRef.current.children[2]
-      carouselRef.current.removeChild(carouselRef.current.children[2])
-      carouselRef.current.prepend(node)
-      carouselRef.current.children[0].setAttribute('data-position', '-1')
-      carouselRef.current.children[1].setAttribute('data-position', '0')
-      carouselRef.current.children[2].setAttribute('data-position', '1')
+    if (data) {
+      getCreations({
+        variables: {
+          after: null,
+          first: null,
+          last: 4,
+          before: data.creations.page.pageInfo?.startCursor,
+        },
+      }).then(({ data }) => {
+        if (data) {
+          data.creations.page.edges && setCreations(data.creations.page.edges)
+          setPageInfo({
+            startCursor: data.creations.page.pageInfo?.startCursor || '',
+            endCursor: data.creations.page.pageInfo?.endCursor || '',
+            hasNextPage: true,
+            hasPreviousPage: data.creations.page.pageInfo?.hasPreviousPage || false,
+          })
+        }
+      })
     }
   }
 
   const handleNext = () => {
-    setCreations({ ...creations, pre: creations.cur })
+    console.log('NEXT')
 
-    if (carouselRef.current) {
-      const node = carouselRef.current.children[0]
-      carouselRef.current.removeChild(carouselRef.current.children[0])
-      carouselRef.current.append(node)
-      carouselRef.current.children[0].setAttribute('data-position', '-1')
-      carouselRef.current.children[1].setAttribute('data-position', '0')
-      carouselRef.current.children[2].setAttribute('data-position', '1')
+    if (data) {
+      getCreations({
+        variables: {
+          after: data.creations.page.pageInfo?.endCursor,
+          first: 4,
+          last: null,
+          before: null,
+        },
+      }).then(({ data }) => {
+        if (data) {
+          data.creations.page.edges && setCreations(data.creations.page.edges)
+          setPageInfo({
+            startCursor: data.creations.page.pageInfo?.startCursor || '',
+            endCursor: data.creations.page.pageInfo?.endCursor || '',
+            hasNextPage: data.creations.page.pageInfo?.hasNextPage || false,
+            hasPreviousPage: true,
+          })
+        }
+      })
     }
   }
 
   useEffect(() => {
-    if (isWindowMounted) {
-      console.log(carouselRef.current)
-    }
+    isWindowMounted &&
+      getCreations({
+        variables: {
+          first: 4,
+        },
+      }).then(({ data }) => {
+        if (data) {
+          const [edges, count] = [data.creations.page.edges, data.creations.pageData?.count || 0]
+          edges && setCreations(edges)
+          data.creations.page.pageInfo &&
+            setPageInfo({
+              ...data.creations.page.pageInfo,
+              hasNextPage: true,
+            })
+        }
+      })
   }, [isWindowMounted])
 
   useEffect(() => {
-    console.log(creations.pre)
+    console.log(creations)
   }, [creations])
 
   const styles = {
@@ -99,33 +129,33 @@ const Home: NextPage = () => {
         <Header />
 
         <Main decorated>
-          <div className="relative h-full w-full max-w-screen-xl mx-auto flex flex-col bg-gray-50">
+          <div className="relative h-full w-full max-w-screen-xl mx-auto flex flex-col">
             {/* CONTROL */}
-            {creations.pre?.length !== 0 && (
-              <button onClick={handlePreviews} className={`${styles.control.button} left-0 before:right-0`}>
+            {hasPreviousPage && (
+              <button onClick={handlePrevious} className={`${styles.control.button} -left-20 before:right-0`}>
                 <FontAwesomeIcon icon={faAngleLeft} className={styles.control.icon} />
               </button>
             )}
-            <button onClick={handleNext} className={`${styles.control.button} right-0 before:left-0`}>
-              <FontAwesomeIcon icon={faAngleRight} className={styles.control.icon} />
-            </button>
+            {hasNextPage && (
+              <button onClick={handleNext} className={`${styles.control.button} -right-20 before:left-0`}>
+                <FontAwesomeIcon icon={faAngleRight} className={styles.control.icon} />
+              </button>
+            )}
             {/* TRENDING */}
-            <div className="flex flex-col mx-auto my-6 w-full max-w-screen-xl rounded-2xl">
+            <div className="flex flex-col mx-auto my-6 w-full max-w-screen-2xl rounded-2xl">
               <div className="w-full h-14 mb-4">
-                <div className="flex items-center w-min px-4 h-full rounded-2xl bg-white dark:bg-gray-900">
+                <div className="flex items-center w-min px-4 h-full rounded-2xl bg-white">
                   <h1 className="text-4xl font-bold">Trending</h1>
                 </div>
               </div>
+
               <div
                 ref={carouselRef}
                 className={`grid grid-rows-[minmax(0,100%)] grid-cols-[minmax(0,100%)] -translate-x-20 px-20 w-full h-fit transition-transform ${
-                  creations.pre?.length ? 'translate-x-2' : ''
+                  hasPreviousPage ? 'translate-x-0.5' : ''
                 }`}
               >
-                {creations &&
-                  Object.entries(creations).map(([_, value], index) => {
-                    return <Slide key={index} pos={index - 1} creations={value} />
-                  })}
+                <Slide creations={creations} />
               </div>
             </div>
           </div>
@@ -136,14 +166,10 @@ const Home: NextPage = () => {
   )
 }
 
-const Carousel: React.VFC<{ slide: Object }> = ({ slide }) => {
-  return <div className=""></div>
-}
-
-const Slide: React.VFC<{ creations: Nullable<CreationEdge[]>; pos: number }> = ({ creations, pos }) => {
+const Slide: React.VFC<{ creations: CreationEdge[] | undefined }> = ({ creations }) => {
   return (
-    <div data-position={pos} className="grid row-start-1 col-start-1 grid-rows-2 grid-cols-2 gap-4 p-4 slide">
-      {creations ? creations.map((item, index) => <CreationItem creation={item} key={index} />) : <h1>Hello</h1>}
+    <div data-position={0} className={`grid row-start-1 col-start-1 grid-rows-2 grid-cols-2 gap-4 p-4 slide`}>
+      {creations && creations.map((item, index) => item.node && <CreationItem creation={item.node} key={index} />)}
     </div>
   )
 }

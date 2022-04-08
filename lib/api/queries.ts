@@ -34,6 +34,8 @@ export const GET_CREATION_QUERY = gql`
         css
         javascript
       }
+      stars
+      comments
       createdAt
       updatedAt
     }
@@ -63,6 +65,8 @@ export const GET_CREATIONS_QUERY = gql`
               css
               javascript
             }
+            stars
+            comments
             createdAt
             updatedAt
           }
@@ -82,3 +86,4 @@ export const GET_CREATIONS_QUERY = gql`
     }
   }
 `
+

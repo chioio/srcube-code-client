@@ -2,7 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Jost';
+  src: url('../lib/assets/fonts/Jost/Jost-VariableFont_wght.ttf');
+  font-weight: 600;
+  font-style: normal;
+}
+
 @layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: 'Jost', sans-serif;
+  }
   h1,
   h2,
   h3,
@@ -50,11 +64,11 @@
     transition: transform 0.3s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.4s linear;
   }
 
-  .slide[data-position="-1"] {
+  .slide[data-position='-1'] {
     --position-offset: -100%;
   }
 
-  .slide[data-position="1"] {
+  .slide[data-position='1'] {
     --position-offset: 100%;
   }
 }

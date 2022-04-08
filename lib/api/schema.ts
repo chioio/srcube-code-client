@@ -57,7 +57,7 @@ export interface SignUpInput {
 
 export interface CreateCreationInput {
     title?: Nullable<string>;
-    author?: string;
+    author: string;
     code?: Nullable<CreateCodeInput>;
 }
 
@@ -68,9 +68,9 @@ export interface CreateCodeInput {
 }
 
 export interface UpdateCreationInput {
-    _id?: string;
+    _id: string;
     title?: Nullable<string>;
-    author?: string;
+    author: string;
     code?: Nullable<UpdateCodeInput>;
 }
 
@@ -78,6 +78,17 @@ export interface UpdateCodeInput {
     html?: Nullable<string>;
     css?: Nullable<string>;
     javascript?: Nullable<string>;
+}
+
+export interface CreateStarInput {
+    username: string;
+    creationId: string;
+}
+
+export interface UpdateStarInput {
+    username?: Nullable<string>;
+    creationId?: Nullable<string>;
+    id: number;
 }
 
 export interface User {
@@ -119,9 +130,9 @@ export interface SignUpOutput {
 }
 
 export interface CreationCode {
-    html?: string;
-    css?: string;
-    javascript?: string;
+    html: string;
+    css: string;
+    javascript: string;
 }
 
 export interface Creation {
@@ -129,6 +140,8 @@ export interface Creation {
     title: string;
     author: string;
     code: CreationCode;
+    stars: number;
+    comments: number;
     createdAt: DateTime;
     updatedAt: DateTime;
 }
@@ -150,8 +163,8 @@ export interface CreationConnection {
 }
 
 export interface CreationEdge {
-    cursor: string;
-    node: Creation;
+    cursor?: Nullable<string>;
+    node?: Nullable<Creation>;
 }
 
 export interface CreationPageInfo {
@@ -161,6 +174,14 @@ export interface CreationPageInfo {
     hasNextPage: boolean;
 }
 
+export interface Star {
+    _id: string;
+    username: string;
+    creationId: string;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
 export interface IQuery {
     users(): User[] | Promise<User[]>;
     user(username: string): User | Promise<User>;
@@ -168,6 +189,8 @@ export interface IQuery {
     existedCheck(input: ExistedCheckInput): ExistedCheckOutput | Promise<ExistedCheckOutput>;
     creations(before?: Nullable<string>, after?: Nullable<string>, first?: Nullable<number>, last?: Nullable<number>): CreationsOutput | Promise<CreationsOutput>;
     creation(_id: string): Creation | Promise<Creation>;
+    stars(): Star[] | Promise<Star[]>;
+    star(id: number): Star | Promise<Star>;
 }
 
 export interface IMutation {
@@ -179,7 +202,10 @@ export interface IMutation {
     createCreation(input: CreateCreationInput): Creation | Promise<Creation>;
     updateCreation(input: UpdateCreationInput): boolean | Promise<boolean>;
     removeCreation(id: number): Creation | Promise<Creation>;
+    createStar(createStarInput: CreateStarInput): Star | Promise<Star>;
+    updateStar(updateStarInput: UpdateStarInput): Star | Promise<Star>;
+    removeStar(_id: string): boolean | Promise<boolean>;
 }
 
 export type DateTime = any;
-export type Nullable<T> = T | null;
+type Nullable<T> = T | null;

@@ -14,7 +14,7 @@ export const Preview: React.VFC<PreviewProps> = ({ creation }) => {
   const [isModalActive, setIsModalActive] = useState(false)
   return (
     <>
-      <div className="relative flex items-center justify-center w-full h-full rounded-xl overflow-hidden bg-red-500 text-white">
+      <div className="relative flex items-center justify-center py-[25%] w-full h-full rounded-xl overflow-hidden bg-red-500 text-white">
         <button
           onClick={() => setIsModalActive(true)}
           className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl
@@ -24,7 +24,7 @@ export const Preview: React.VFC<PreviewProps> = ({ creation }) => {
         </button>
         <iframe
           title={creation.title}
-          className="w-full min-h-[15rem] bg-white border"
+          className="absolute top-0 bottom-0 left-0 right-0 w-[calc(200%+5px)] h-[calc(200%+5px)] min-h-[15rem] origin-top-left scale-50 bg-white border"
           srcDoc={`<html class="dark:bg-black dark:text-white">
             <title>${creation.title}</title>
             <style id="_style">${creation.code.css}</style>

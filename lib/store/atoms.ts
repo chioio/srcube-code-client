@@ -4,9 +4,9 @@ import { atom } from 'recoil'
 export const userProfileState = atom<UserProfileOutput>({
   key: 'userProfileState',
   default: {
-    username: 'chioio',
-    firstName: 'Tenn',
-    lastName: 'Chio',
+    username: '',
+    firstName: '',
+    lastName: '',
     roles: [UserRole.USER],
     avatar: 'https://picsum.photos/300',
   },
@@ -23,6 +23,8 @@ export const creationState = atom<Creation>({
       css: '',
       javascript: '',
     },
+    stars: 0,
+    comments: 0,
     createdAt: '',
     updatedAt: '',
   },

@@ -34,6 +34,8 @@ export const HeaderPanel: React.VFC<any> = () => {
         css: '',
         javascript: '',
       },
+      stars: 0,
+      comments: 0,
       createdAt: '',
       updatedAt: '',
     })
@@ -88,14 +90,14 @@ export const SaveButton: React.VFC<any> = () => {
 
   const handleSave = () => {
     if (query._id) {
-      const { createdAt, updatedAt, ...rest } = creation as Creation
+      const { createdAt, updatedAt, stars, comments, ...rest } = creation as Creation
       updateCreation({
         variables: {
           input: rest,
         },
       })
     } else {
-      const { _id, createdAt, updatedAt, ...rest } = creation as Creation
+      const { _id, createdAt, updatedAt, stars, comments, ...rest } = creation as Creation
       createCreation({
         variables: {
           input: rest,

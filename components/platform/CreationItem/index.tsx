@@ -1,33 +1,156 @@
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faComment } from '@fortawesome/free-regular-svg-icons'
-import { faStar } from '@fortawesome/free-solid-svg-icons'
+import { faStar as fasStar } from '@fortawesome/free-solid-svg-icons'
+import { faStar as farStar } from '@fortawesome/free-regular-svg-icons'
 
 import { Action } from './Action'
 import { Preview } from './Preview'
 import { PreviewModal } from './PreviewModal'
-import { CreationEdge } from '@lib/api/schema'
-import { useQuery } from '@apollo/client'
-import { GET_USER_AVATAR_QUERY } from '@lib/api/queries'
+import { CreateStarInput, Creation, Star, User } from '@lib/api/schema'
+import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
+import { useWindowMounted } from '@lib/hooks'
+import { useRecoilValue } from 'recoil'
+import { userProfileState } from '@lib/store/atoms'
 
 interface CreationItemProps {
   isCommon?: boolean
-  creation: CreationEdge
+  creation: Creation
 }
 
+type CreationItemQueryVariables = {
+  author: string
+  username: string
+  creationId: string
+}
+
+type CreationItemQueryResponse = {
+  stars: Star[]
+  user: User
+}
+
+const CREATION_ITEM_QUERY = gql`
+  query Query($author: String!, $creationId: String!, $username: String) {
+    user(username: $author) {
+      avatar
+    }
+    stars(creationId: $creationId, username: $username) {
+      _id
+      username
+    }
+  }
+`
+
+const STAR_COUNT_QUERY = gql`
+  query Query($creationId: String!) {
+    stars(creationId: $creationId) {
+      _id
+    }
+  }
+`
+
+export const ADD_STAR_MUTATION = gql`
+  mutation CreateStar($createStarInput: CreateStarInput!) {
+    createStar(createStarInput: $createStarInput) {
+      _id
+    }
+  }
+`
+
+export const CANCEL_STAR_MUTATION = gql`
+  mutation RemoveStar($removeStarId: String!) {
+    removeStar(_id: $removeStarId)
+  }
+`
+
 export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, creation }) => {
+  const isWindowMounted = useWindowMounted()
+
+  const profile = useRecoilValue(userProfileState)
+
   const [isModalActive, setIsModalActive] = useState(false)
 
-  console.log(creation.node.author)
+  const [starId, setStarId] = useState('')
+  const [starCount, setStarCount] = useState(0)
 
-  const { data } = useQuery(GET_USER_AVATAR_QUERY, { variables: { username: creation.node.author } })
+  const [judgeStared, { data }] = useLazyQuery<CreationItemQueryResponse, CreationItemQueryVariables>(
+    CREATION_ITEM_QUERY,
+    {
+      variables: {
+        author: creation.author,
+        creationId: creation._id,
+        username: profile.username,
+      },
+      onCompleted: (data) => {
+        if (data) {
+          if (data.stars.length !== 0) {
+            setStarId(data.stars[0]._id)
+          } else {
+            setStarId('')
+          }
+        }
+      },
+    },
+  )
+
+  const [getStarCount] = useLazyQuery(STAR_COUNT_QUERY, {
+    variables: {
+      creationId: creation._id,
+    },
+    onCompleted: (data) => {
+      if (data) {
+        setStarCount(data.stars.length)
+      }
+    },
+  })
+
+  const [addStar] = useMutation<{ createStar: { _id: string } }, { createStarInput: CreateStarInput }>(
+    ADD_STAR_MUTATION,
+    {
+      variables: {
+        createStarInput: {
+          username: profile.username,
+          creationId: creation._id,
+        },
+      },
+      onCompleted: (data) => {
+        if (data) {
+          setStarId(data.createStar._id)
+          getStarCount()
+        }
+      },
+    },
+  )
+
+  const [cancelStar] = useMutation(CANCEL_STAR_MUTATION, {
+    variables: {
+      removeStarId: starId,
+    },
+    onCompleted: (data) => {
+      if (data) {
+        setStarId('')
+        getStarCount()
+      }
+    },
+  })
 
   const handleStar = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
+
+    if (!starId) {
+      addStar()
+    } else {
+      cancelStar()
+    }
     console.log('star!')
   }
+
+  useEffect(() => {
+    getStarCount()
+    judgeStared()
+  }, [creation])
 
   const styles = {
     meta: {
@@ -43,17 +166,27 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
         isCommon ? 'after:left-7 after:bottom-6' : 'after:left-3.5 after:bottom-0'
       } after:right-0 after:rounded-lg after:-z-10 after:bg-gray-200/60 after:transition-all after:duration-300`}
     >
-      <Preview creation={creation?.node} />
+      <Preview creation={creation} />
       <div className="">
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex items-center">
           {isCommon && (
-            <Link href="/">
+            <Link href="/[username]" as={`/${creation.author}`}>
               <img src={data?.user.avatar} className="w-12 rounded-lg bg-white cursor-pointer" alt="" />
             </Link>
           )}
-          <Link href="/coding">
-            <h2 className="flex-1 ml-3.5 mt-0.5 text-lg font-extrabold cursor-pointer hover:text-blue-600">Untitled</h2>
-          </Link>
+          <div className="flex flex-col flex-grow">
+            <Link href="/[username]/creation/[id]" as={`/${creation.author}/creation/${creation._id}`}>
+              <h2 className="flex-1 ml-3.5 mt-0.5 text-lg font-extrabold cursor-pointer hover:text-blue-600">
+                {creation.title}
+              </h2>
+            </Link>
+            {isCommon && (
+              <Link href="/[username]" as={`/${creation.author}`}>
+                <h3 className="ml-3.5 text-gray-500 cursor-pointer hover:text-gray-600">@{creation.author}</h3>
+              </Link>
+            )}
+          </div>
+
           <Action />
         </div>
         <div
@@ -64,12 +197,12 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
           } mt-2 -mb-1 space-x-2`}
         >
           <button onClick={handleStar} className={styles.meta.button}>
-            <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
-            <span className="text-sm">10</span>
+            <FontAwesomeIcon icon={starId ? fasStar : farStar} className={`${starId ? 'text-yellow-400' : ''}`} />
+            <span className="text-sm">{starCount}</span>
           </button>
           <button onClick={() => setIsModalActive(true)} className={styles.meta.button}>
             <FontAwesomeIcon icon={faComment} />
-            <span className="text-sm">4</span>
+            <span className="text-sm">{creation.comments}</span>
           </button>
         </div>
         <PreviewModal isActive={isModalActive} onClose={() => setIsModalActive(false)} />

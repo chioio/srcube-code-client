@@ -20,7 +20,7 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
   const isWindowMounted = useWindowMounted()
 
   const [profile, setUserProfile] = useRecoilState(userProfileState)
-  const [,setCreation] = useRecoilState(creationState)
+  const [, setCreation] = useRecoilState(creationState)
 
   const [findUser] = useLazyQuery(GET_USER_QUERY, {
     variables: {
@@ -41,6 +41,8 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
         css: '',
         javascript: '',
       },
+      stars: 0,
+      comments: 0,
       createdAt: '',
       updatedAt: '',
     })
