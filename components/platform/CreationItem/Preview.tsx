@@ -17,10 +17,10 @@ export const Preview: React.VFC<PreviewProps> = ({ creation }) => {
       <div className="relative flex items-center justify-center py-[25%] w-full h-full rounded-xl overflow-hidden bg-red-500 text-white">
         <button
           onClick={() => setIsModalActive(true)}
-          className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl
-          after:absolute after:right-0 after:top-0 group-hover:after:inset-0 after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent "
+          className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl cursor-pointer
+          after:absolute after:right-0 after:top-0 group-hover:after:inset-0 after:cursor-pointer after:z-30 after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent "
         >
-          <FontAwesomeIcon icon={faExpand} className="z-20 absolute top-2.5 right-4" />
+          <FontAwesomeIcon icon={faExpand} className="z-40 absolute top-4 right-4" />
         </button>
         <iframe
           title={creation.title}

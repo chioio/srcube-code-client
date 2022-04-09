@@ -51,8 +51,8 @@ export const GET_USER_AVATAR_QUERY = gql`
 `
 
 export const GET_CREATIONS_QUERY = gql`
-  query Creations($before: String, $after: String, $first: Float, $last: Float) {
-    creations(before: $before, after: $after, first: $first, last: $last) {
+  query Creations($before: String, $after: String, $first: Float, $last: Float, $search: String) {
+    creations(before: $before, after: $after, first: $first, last: $last, search: $search) {
       page {
         edges {
           cursor

@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faComment } from '@fortawesome/free-regular-svg-icons'
-import { faStar as fasStar } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsis, faStar as fasStar } from '@fortawesome/free-solid-svg-icons'
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons'
 
-import { Action } from './Action'
+import { Action, Actions } from './Actions'
 import { Preview } from './Preview'
 import { PreviewModal } from './PreviewModal'
 import { CreateStarInput, Creation, Star, User } from '@lib/api/schema'
@@ -14,6 +14,7 @@ import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import { useWindowMounted } from '@lib/hooks'
 import { useRecoilValue } from 'recoil'
 import { userProfileState } from '@lib/store/atoms'
+import { Popover, Transition } from '@headlessui/react'
 
 interface CreationItemProps {
   isCommon?: boolean
@@ -186,8 +187,33 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
               </Link>
             )}
           </div>
-
-          <Action />
+          {/* ACTIONS */}
+          <Popover className="inline-block relative">
+            {({ open }) => (
+              <>
+                <Popover.Button
+                  className={`m-1 w-7 h-7 text-lg hover:text-black rounded-full active:bg-black/5 ${
+                    open ? 'bg-white text-black' : 'text-black/30'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faEllipsis} />
+                </Popover.Button>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-200"
+                  enterFrom="opacity-0 translate-y-1"
+                  enterTo="opacity-100 translate-y-0"
+                  leave="transition ease-in duration-150"
+                  leaveFrom="opacity-100 translate-y-0"
+                  leaveTo="opacity-0 translate-y-1"
+                >
+                  <Popover.Panel className="absolute bottom-9 right-0 px-2 py-3 mt-2 w-fit z-50 rounded-lg bg-white shadow-lg">
+                    <Actions open={open} owner={creation.author} creationId={creation._id} />
+                  </Popover.Panel>
+                </Transition>
+              </>
+            )}
+          </Popover>
         </div>
         <div
           className={`${

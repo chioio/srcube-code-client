@@ -1,27 +1,24 @@
-import type { NextPage } from 'next'
-import React, { useEffect, useRef, useState } from 'react'
+import { NextPage } from 'next'
 import Head from 'next/head'
-
-import { Header, Layout, Meta, Links, Main, Footer } from '@components/common'
+import { Header, Layout, Links, Main, Meta } from '@components/common'
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleLeft, faAngleRight, faArrowLeft, faSearch } from '@fortawesome/free-solid-svg-icons'
-import { CreationItem } from '@components/platform'
-import { useLazyQuery, useQuery } from '@apollo/client'
+import { useEffect, useState } from 'react'
+import { useLazyQuery } from '@apollo/client'
 import { Result } from '@lib/api/graphql'
-import { GET_CREATIONS_QUERY } from '@lib/api/queries'
 import { CreationEdge, CreationPageInfo, CreationsOutput } from '@lib/api/schema'
+import { GET_CREATIONS_QUERY } from '@lib/api/queries'
 import { useWindowMounted } from '@lib/hooks'
+import { CreationItem } from '@components/platform'
 import { useRouter } from 'next/router'
 
-const Home: NextPage = () => {
+const Search: NextPage = () => {
   const isWindowMounted = useWindowMounted()
 
-  const router = useRouter()
-
-  const carouselRef = useRef<HTMLDivElement>(null)
+  const { query } = useRouter()
 
   const [{ hasNextPage, hasPreviousPage, startCursor, endCursor }, setPageInfo] = useState<CreationPageInfo>({
-    hasNextPage: true,
+    hasNextPage: false,
     hasPreviousPage: false,
     startCursor: '',
     endCursor: '',
@@ -44,6 +41,7 @@ const Home: NextPage = () => {
           after: null,
           first: null,
           last: 4,
+          search: query.q,
           before: data.creations.page.pageInfo?.startCursor,
         },
       }).then(({ data }) => {
@@ -68,42 +66,49 @@ const Home: NextPage = () => {
         variables: {
           after: data.creations.page.pageInfo?.endCursor,
           first: 4,
+          search: query.q,
           last: null,
           before: null,
         },
       }).then(({ data }) => {
         if (data) {
           data.creations.page.edges && setCreations(data.creations.page.edges)
-          setPageInfo({
-            startCursor: data.creations.page.pageInfo?.startCursor || '',
-            endCursor: data.creations.page.pageInfo?.endCursor || '',
-            hasNextPage: data.creations.page.pageInfo?.hasNextPage || false,
-            hasPreviousPage: true,
-          })
+          data.creations.page.pageInfo &&
+            setPageInfo({
+              ...data.creations.page.pageInfo,
+              // startCursor: data.creations.page.pageInfo?.startCursor || '',
+              // endCursor: data.creations.page.pageInfo?.endCursor || '',
+              // hasNextPage: data.creations.page.pageInfo?.hasNextPage || false,
+              hasPreviousPage: true,
+            })
         }
       })
     }
   }
 
   useEffect(() => {
-    if (isWindowMounted) {
+    if (query.q) {
       getCreations({
         variables: {
           first: 4,
+          search: query.q,
         },
       }).then(({ data }) => {
+        console.log(data)
         if (data) {
           const [edges, count] = [data.creations.page.edges, data.creations.pageData?.count || 0]
           edges && setCreations(edges)
           data.creations.page.pageInfo &&
             setPageInfo({
               ...data.creations.page.pageInfo,
-              hasNextPage: true,
             })
+          data.creations.pageData && data.creations.pageData.count > 4
+            ? setPageInfo((value) => ({ ...value, hasNextPage: true }))
+            : setPageInfo((value) => ({ ...value, hasNextPage: false }))
         }
       })
     }
-  }, [isWindowMounted])
+  }, [query.q])
 
   const styles = {
     control: {
@@ -120,24 +125,20 @@ const Home: NextPage = () => {
         <Meta />
         <Links />
       </Head>
-
       <Layout>
         {/* HEADER */}
         <Header />
 
         {/* MAIN PAGE */}
         <Main decorated>
-          {/* TRENDING */}
           <div className="flex flex-col mx-auto my-6 w-full max-w-screen-xl rounded-2xl">
             <div className="flex items-center w-min px-4 h-full rounded-xl bg-white shadow-sm">
-              <h1 className="py-2 text-3xl font-bold">Trending</h1>
+              <h1 className="py-2 text-3xl font-bold">Results</h1>
             </div>
 
             <div
-              ref={carouselRef}
-              className={`grid grid-rows-[minmax(0,100%)] grid-cols-[minmax(0,100%)] -translate-x-20 px-20 w-full h-fit transition-transform ${
-                hasPreviousPage ? 'translate-x-0.5' : ''
-              }`}
+              className={`grid grid-rows-[minmax(0,100%)] grid-cols-[minmax(0,100%)] -translate-x-20 px-20 w-full h-fit transition-transform
+              `}
             >
               {/* CONTROL */}
               {hasPreviousPage && (
@@ -154,7 +155,6 @@ const Home: NextPage = () => {
             </div>
           </div>
         </Main>
-        <Footer />
       </Layout>
     </>
   )
@@ -168,4 +168,4 @@ const Slide: React.VFC<{ creations: CreationEdge[] | undefined }> = ({ creations
   )
 }
 
-export default Home
+export default Search

@@ -24,6 +24,8 @@ const CreateCreation: NextPage = () => {
         css: '',
         javascript: '',
       },
+      stars: 0,
+      comments: 0,
       createdAt: '',
       updatedAt: '',
     })

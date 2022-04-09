@@ -1,17 +1,18 @@
 import { useRouter } from 'next/router'
-import { useRecoilState } from 'recoil'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMeteor } from '@fortawesome/free-solid-svg-icons'
+import { faMeteor, faSearch } from '@fortawesome/free-solid-svg-icons'
 
 import { Logo, UserMenu } from '@components/common'
 import { useWindowMounted } from '@lib/hooks'
-import { creationState } from '@lib/store/atoms'
+import { useState } from 'react'
 
 interface HeaderProps {}
 
 export const Header: React.VFC<HeaderProps> = () => {
   const router = useRouter()
+
+  const [searchText, setSearchText] = useState('')
 
   const isWindowMounted = useWindowMounted()
 
@@ -19,9 +20,35 @@ export const Header: React.VFC<HeaderProps> = () => {
     router.push('/create')
   }
 
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchText.trim().length > 0) {
+      router.push({
+        pathname: '/search',
+        query: {
+          q: searchText,
+        },
+      })
+      setSearchText('')
+    }
+  }
+
   return (
     <header className="flex items-center justify-between px-4 py-2 md:py-2.5 max-h-fit border-b border-gray-200/80 bg-white">
       <Logo />
+      <label className="flex-grow mx-10 relative block h-full">
+        <span className="sr-only">Search</span>
+        <span className="absolute inset-y-0 left-3 text-gray-400 text-xl flex items-center pl-2">
+          <FontAwesomeIcon icon={faSearch} />
+        </span>
+        <input
+          className="placeholder:italic placeholder:text-slate-400 text-lg rounded-lg block bg-gray-100 w-full h-full border-none py-2 pl-14 pr-3 focus:outline-none focus:border-blue-500 focus:ring-blue-500/50 focus:ring-4"
+          placeholder="Search for anything..."
+          type="text"
+          name="search"
+          onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={handleSearch}
+        />
+      </label>
       {isWindowMounted && localStorage.getItem('token') && (
         <div>
           {/* New Creation */}
