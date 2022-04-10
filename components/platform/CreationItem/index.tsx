@@ -6,7 +6,7 @@ import { faComment } from '@fortawesome/free-regular-svg-icons'
 import { faEllipsis, faStar as fasStar } from '@fortawesome/free-solid-svg-icons'
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons'
 
-import { Action, Actions } from './Actions'
+import { Actions } from './Actions'
 import { Preview } from './Preview'
 import { PreviewModal } from './PreviewModal'
 import { CreateStarInput, Creation, Star, User } from '@lib/api/schema'
@@ -33,13 +33,17 @@ type CreationItemQueryResponse = {
 }
 
 const CREATION_ITEM_QUERY = gql`
-  query Query($author: String!, $creationId: String!, $username: String) {
+  query CreationItemQuery($author: String!, $creationId: String!, $username: String) {
     user(username: $author) {
       avatar
     }
     stars(creationId: $creationId, username: $username) {
       _id
-      username
+      user {
+        title
+        username
+        avatar
+      }
     }
   }
 `
@@ -231,7 +235,9 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
             <span className="text-sm">{creation.comments}</span>
           </button>
         </div>
-        <PreviewModal isActive={isModalActive} onClose={() => setIsModalActive(false)} />
+        {isModalActive && (
+          <PreviewModal isActive={isModalActive} creationId={creation._id} onClose={() => setIsModalActive(false)} />
+        )}
       </div>
     </article>
   )

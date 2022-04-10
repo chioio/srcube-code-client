@@ -39,7 +39,9 @@ export const Preview: React.VFC<PreviewProps> = ({ creation }) => {
           sandbox="allow-popups-to-escape-sandbox allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-modals allow-same-origin"
         />
       </div>
-      <PreviewModal isActive={isModalActive} onClose={() => setIsModalActive(false)} />
+      {isModalActive && (
+        <PreviewModal isActive={isModalActive} creationId={creation._id} onClose={() => setIsModalActive(false)} />
+      )}
     </>
   )
 }

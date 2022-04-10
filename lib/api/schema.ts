@@ -85,9 +85,16 @@ export interface CreateStarInput {
     creationId: string;
 }
 
-export interface UpdateStarInput {
-    username?: Nullable<string>;
+export interface CreateCommentInput {
+    creationId: string;
+    commenter: string;
+    content: string;
+}
+
+export interface UpdateCommentInput {
     creationId?: Nullable<string>;
+    commenter?: Nullable<string>;
+    content?: Nullable<string>;
     id: number;
 }
 
@@ -174,9 +181,15 @@ export interface CreationPageInfo {
     hasNextPage: boolean;
 }
 
+export interface Starer {
+    title: string;
+    username: string;
+    avatar: string;
+}
+
 export interface Star {
     _id: string;
-    username: string;
+    user: Starer;
     creationId: string;
     createdAt: DateTime;
     updatedAt: DateTime;
@@ -218,6 +231,21 @@ export interface Pin {
     updatedAt: DateTime;
 }
 
+export interface Commenter {
+    title: string;
+    username: string;
+    avatar: string;
+}
+
+export interface Comment {
+    _id: string;
+    creationId: string;
+    commenter: Commenter;
+    content: string;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
 export interface IQuery {
     users(): User[] | Promise<User[]>;
     user(username: string): User | Promise<User>;
@@ -225,10 +253,12 @@ export interface IQuery {
     existedCheck(input: ExistedCheckInput): ExistedCheckOutput | Promise<ExistedCheckOutput>;
     creations(search?: Nullable<string>, before?: Nullable<string>, after?: Nullable<string>, first?: Nullable<number>, last?: Nullable<number>): CreationsOutput | Promise<CreationsOutput>;
     creation(_id: string): Creation | Promise<Creation>;
-    stars(username?: Nullable<string>, creationId: string): Star[] | Promise<Star[]>;
+    stars(username?: Nullable<string>, creationId?: Nullable<string>): Star[] | Promise<Star[]>;
     follow(following: string, username: string): Nullable<Follow> | Promise<Nullable<Follow>>;
     follows(following?: Nullable<string>, username?: Nullable<string>, before?: Nullable<string>, after?: Nullable<string>, first?: Nullable<number>, last?: Nullable<number>): FollowsOutput | Promise<FollowsOutput>;
     pin(username: string): Pin | Promise<Pin>;
+    comments(creationId: string): Comment[] | Promise<Comment[]>;
+    comment(id: number): Comment | Promise<Comment>;
 }
 
 export interface IMutation {
@@ -241,11 +271,13 @@ export interface IMutation {
     updateCreation(input: UpdateCreationInput): boolean | Promise<boolean>;
     removeCreation(id: number): Creation | Promise<Creation>;
     createStar(createStarInput: CreateStarInput): Star | Promise<Star>;
-    updateStar(updateStarInput: UpdateStarInput): Star | Promise<Star>;
     removeStar(_id: string): boolean | Promise<boolean>;
     createFollow(following: string, username: string): Follow | Promise<Follow>;
     removeFollow(_id: string): boolean | Promise<boolean>;
-    updatePinState(pined: boolean, creationId: string, username: string): boolean | Promise<boolean>;
+    updatePin(pined: boolean, creationId: string, username: string): boolean | Promise<boolean>;
+    createComment(createCommentInput: CreateCommentInput): Comment | Promise<Comment>;
+    updateComment(updateCommentInput: UpdateCommentInput): Comment | Promise<Comment>;
+    removeComment(id: number): Comment | Promise<Comment>;
 }
 
 export type DateTime = any;

@@ -93,14 +93,15 @@ const FOLLOW_MUTATION = gql`
 `
 
 type UnfollowVariables = {
-  _id: string
+  username: string
+  following: string
 }
 
 type UnfollowOutput = boolean
 
 const UNFOLLOW_MUTATION = gql`
-  mutation RemoveFollow($_id: String!) {
-    removeFollow(_id: $_id)
+  mutation RemoveFollow($following: String!, $username: String!) {
+    removeFollow(following: $following, username: $username)
   }
 `
 
@@ -112,7 +113,7 @@ export const Actions: React.VFC<{ open: boolean; owner: string; creationId: stri
   const [isDeleteModalActive, setIsDeleteModalActive] = useState(false)
   const [isEditModalActive, setIsEditModalActive] = useState(false)
 
-  const [isFollowed, setIsFollowed] = useState('')
+  const [isFollowed, setIsFollowed] = useState(false)
   const [isPined, setIsPined] = useState(false)
 
   const profile = useRecoilValue(userProfileState)
@@ -135,7 +136,7 @@ export const Actions: React.VFC<{ open: boolean; owner: string; creationId: stri
     },
     onCompleted: (data) => {
       if (data) {
-        data.follow?._id ? setIsFollowed(data.follow._id) : setIsFollowed('')
+        data.follow?._id ? setIsFollowed(true) : setIsFollowed(false)
       }
     },
   })
@@ -160,18 +161,19 @@ export const Actions: React.VFC<{ open: boolean; owner: string; creationId: stri
     },
     onCompleted: (data) => {
       if (data) {
-        data.createFollow._id && setIsFollowed(data.createFollow._id)
+        data.createFollow._id && setIsFollowed(true)
       }
     },
   })
 
   const [unFollow] = useMutation<UnfollowOutput, UnfollowVariables>(UNFOLLOW_MUTATION, {
     variables: {
-      _id: isFollowed,
+      username: profile.username,
+      following: owner,
     },
     onCompleted: (data) => {
       if (data) {
-        setIsFollowed('')
+        setIsFollowed(false)
       }
     },
   })
