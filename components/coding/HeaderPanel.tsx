@@ -1,4 +1,4 @@
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -7,9 +7,10 @@ import {
   faCloud as fasCloud,
   faListAlt as fasListAlt,
   faTimes as fasTimes,
+  faCodeFork,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { viewDirectionState, creationState } from '@lib/store/atoms'
+import { viewDirectionState, creationState, userProfileState } from '@lib/store/atoms'
 import { Dialog, Transition } from '@headlessui/react'
 import { LogoIcon, UserMenu } from '@components/common'
 import { useMutation } from '@apollo/client'
@@ -21,7 +22,9 @@ import toast from 'react-hot-toast'
 
 export const HeaderPanel: React.VFC<any> = () => {
   const router = useRouter()
+  const { query } = router
 
+  const { username } = useRecoilValue(userProfileState)
   const [, setCreation] = useRecoilState(creationState)
 
   const handleLogoClick = () => {
@@ -51,8 +54,8 @@ export const HeaderPanel: React.VFC<any> = () => {
       <CreationTitle />
       {/* Work Control */}
       <div className="flex">
-        <SaveButton />
-        <WorkDetails />
+        {query.username && query.username !== username ? <ForkButton /> : <SaveButton />}
+        {/* <WorkDetails /> */}
         <ViewSwitcher />
       </div>
       {/* User */}
@@ -113,6 +116,47 @@ export const SaveButton: React.VFC<any> = () => {
     >
       <FontAwesomeIcon icon={fasCloud} className="mr-1.5" />
       <span className="text-lg font-md">Save</span>
+    </button>
+  )
+}
+
+export const ForkButton: React.VFC<any> = () => {
+  const [creation, setCreation] = useRecoilState(creationState)
+  const { username } = useRecoilValue(userProfileState)
+
+  const router = useRouter()
+
+  const [createCreation] = useMutation<Result<Creation>>(CREATE_CREATION_MUTATION, {
+    onCompleted: (data) => {
+      if (data) {
+        setCreation(data.creation)
+        toast.success('Fork Success!')
+        router.push('/[username]/creation/[_id]', `/${data.createCreation.author}/creation/${data.createCreation._id}`)
+      } else {
+        toast.error('Fork Failure!')
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
+
+  const handleFork = () => {
+    const { _id, createdAt, updatedAt, stars, comments, ...rest } = creation as Creation
+    createCreation({
+      variables: {
+        input: { ...rest, author: username },
+      },
+    })
+  }
+
+  return (
+    <button
+      onClick={handleFork}
+      className="mr-2.5 px-4 rounded-md leading-10 text-white bg-blue-600 active:bg-blue-700 active:shadow-md active:text-gray-100"
+    >
+      <FontAwesomeIcon icon={faCodeFork} className="mr-1.5" />
+      <span className="text-lg font-md">Fork</span>
     </button>
   )
 }

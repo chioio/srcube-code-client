@@ -1,9 +1,11 @@
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import React, { Fragment } from 'react'
 
-interface DeleteModalProps extends Modal {}
+interface DeleteModalProps extends Modal {
+  onConfirm: (e: React.MouseEvent<HTMLButtonElement>) => void
+}
 
-export const DeleteModal: React.VFC<DeleteModalProps> = ({ isActive, onClose }) => {
+export const DeleteModal: React.VFC<DeleteModalProps> = ({ isActive, onConfirm, onClose }) => {
   return (
     <Transition appear show={isActive} as={Fragment}>
       <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={onClose}>
@@ -44,7 +46,7 @@ export const DeleteModal: React.VFC<DeleteModalProps> = ({ isActive, onClose }) 
                 </ul>
 
                 <button
-                  onClick={onClose}
+                  onClick={onConfirm}
                   className="inline-block mt-2 mr-2.5 px-3 py-1.5 rounded-md text-white bg-red-500 active:ring-4 active:ring-red-500/40"
                 >
                   I understand, delete my Creation

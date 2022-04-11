@@ -10,11 +10,13 @@ import { Actions } from './Actions'
 import { Preview } from './Preview'
 import { PreviewModal } from './PreviewModal'
 import { CreateStarInput, Creation, Star, User } from '@lib/api/schema'
-import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
+import { gql, useLazyQuery, useMutation } from '@apollo/client'
 import { useWindowMounted } from '@lib/hooks'
 import { useRecoilValue } from 'recoil'
 import { userProfileState } from '@lib/store/atoms'
 import { Popover, Transition } from '@headlessui/react'
+import { DeleteModal } from './DeleteModal'
+import toast from 'react-hot-toast'
 
 interface CreationItemProps {
   isCommon?: boolean
@@ -48,6 +50,20 @@ const CREATION_ITEM_QUERY = gql`
   }
 `
 
+type DeleteCreationVariables = {
+  _id: string
+}
+
+type DeleteCreationOutput = {
+  removeCreation: boolean
+}
+
+const DELETE_CREATION_MUTATION = gql`
+  mutation RemoveCreation($_id: String!) {
+    removeCreation(_id: $_id)
+  }
+`
+
 const STAR_COUNT_QUERY = gql`
   query Query($creationId: String!) {
     stars(creationId: $creationId) {
@@ -56,7 +72,7 @@ const STAR_COUNT_QUERY = gql`
   }
 `
 
-export const ADD_STAR_MUTATION = gql`
+const ADD_STAR_MUTATION = gql`
   mutation CreateStar($createStarInput: CreateStarInput!) {
     createStar(createStarInput: $createStarInput) {
       _id
@@ -64,7 +80,7 @@ export const ADD_STAR_MUTATION = gql`
   }
 `
 
-export const CANCEL_STAR_MUTATION = gql`
+const CANCEL_STAR_MUTATION = gql`
   mutation RemoveStar($removeStarId: String!) {
     removeStar(_id: $removeStarId)
   }
@@ -76,6 +92,7 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
   const profile = useRecoilValue(userProfileState)
 
   const [isModalActive, setIsModalActive] = useState(false)
+  const [isDeleteModalActive, setIsDeleteModalActive] = useState(false)
 
   const [starId, setStarId] = useState('')
   const [starCount, setStarCount] = useState(0)
@@ -141,6 +158,20 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
     },
   })
 
+  const [deleteCreation, { loading }] = useMutation<DeleteCreationOutput, DeleteCreationVariables>(
+    DELETE_CREATION_MUTATION,
+    {
+      variables: {
+        _id: creation._id,
+      },
+      onCompleted: (data) => {
+        if (data) {
+          data.removeCreation && toast.success('Delete success!')
+        }
+      },
+    },
+  )
+
   const handleStar = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
 
@@ -150,6 +181,13 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
       cancelStar()
     }
     console.log('star!')
+  }
+
+  const handleDeleteConfirm = () => {
+    deleteCreation()
+    if (!loading) {
+      setIsDeleteModalActive(false)
+    }
   }
 
   useEffect(() => {
@@ -212,7 +250,12 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
                   leaveTo="opacity-0 translate-y-1"
                 >
                   <Popover.Panel className="absolute bottom-9 right-0 px-2 py-3 mt-2 w-fit z-50 rounded-lg bg-white shadow-lg">
-                    <Actions open={open} owner={creation.author} creationId={creation._id} />
+                    <Actions
+                      open={open}
+                      owner={creation.author}
+                      creationId={creation._id}
+                      onDelete={() => setIsDeleteModalActive(true)}
+                    />
                   </Popover.Panel>
                 </Transition>
               </>
@@ -238,6 +281,11 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
         {isModalActive && (
           <PreviewModal isActive={isModalActive} creationId={creation._id} onClose={() => setIsModalActive(false)} />
         )}
+        <DeleteModal
+          isActive={isDeleteModalActive}
+          onConfirm={handleDeleteConfirm}
+          onClose={() => setIsDeleteModalActive(false)}
+        />
       </div>
     </article>
   )

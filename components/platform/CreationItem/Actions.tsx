@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 
 import { Popover, Transition } from '@headlessui/react'
 import {
@@ -105,13 +105,15 @@ const UNFOLLOW_MUTATION = gql`
   }
 `
 
-export const Actions: React.VFC<{ open: boolean; owner: string; creationId: string }> = ({
-  open,
-  owner,
-  creationId,
-}) => {
-  const [isDeleteModalActive, setIsDeleteModalActive] = useState(false)
-  const [isEditModalActive, setIsEditModalActive] = useState(false)
+interface ActionsProps {
+  open: boolean
+  owner: string
+  creationId: string
+  onDelete: (e: React.MouseEvent<HTMLButtonElement>) => void
+}
+
+export const Actions: React.VFC<ActionsProps> = ({ open, owner, creationId, onDelete }) => {
+  // const [isEditModalActive, setIsEditModalActive] = useState(false)
 
   const [isFollowed, setIsFollowed] = useState(false)
   const [isPined, setIsPined] = useState(false)
@@ -178,8 +180,6 @@ export const Actions: React.VFC<{ open: boolean; owner: string; creationId: stri
     },
   })
 
-  const handleEditInfo = () => {}
-
   const handlePin = () => {
     updatePin({
       variables: {
@@ -219,17 +219,14 @@ export const Actions: React.VFC<{ open: boolean; owner: string; creationId: stri
         </li>
         {owner === profile.username ? (
           <>
-            <li className={`p-0.5 border-b`}>
+            {/* <li className={`p-0.5 border-b`}>
               <button onClick={() => setIsEditModalActive(true)} className={styles.action.button}>
                 <FontAwesomeIcon icon={faPenToSquare} className={styles.action.icon} />
                 <span>Edit info</span>
               </button>
-            </li>
+            </li> */}
             <li className={`p-0.5`}>
-              <button
-                onClick={() => setIsDeleteModalActive(true)}
-                className={`${styles.action.button} hover:!bg-red-500 hover:text-white`}
-              >
+              <button onClick={onDelete} className={`${styles.action.button} hover:!bg-red-500 hover:text-white`}>
                 <FontAwesomeIcon icon={faTrashCan} className={styles.action.icon} />
                 <span>Delete</span>
               </button>
@@ -248,8 +245,7 @@ export const Actions: React.VFC<{ open: boolean; owner: string; creationId: stri
           </>
         )}
       </ul>
-      <EditInfoModal isActive={isEditModalActive} onClose={() => setIsEditModalActive(false)} />
-      <DeleteModal isActive={isDeleteModalActive} onClose={() => setIsDeleteModalActive(false)} />
+      {/* <EditInfoModal isActive={isEditModalActive} onClose={() => setIsEditModalActive(false)} /> */}
     </>
   )
 }
