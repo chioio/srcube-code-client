@@ -69,7 +69,7 @@ export const UserMenu: React.VFC<UserMenuProps> = () => {
     <Popover className="inline-block relative">
       <Popover.Button className="w-9 md:w-10 rounded-md overflow-hidden">
         <img
-          className="inline-block align-middle h-full bg-gray-200 dark:bg-gray-800 overflow-hidden shadow-md cursor-pointer"
+          className="inline-block align-middle h-full bg-white overflow-hidden shadow-md cursor-pointer"
           src={profile.avatar}
         />
       </Popover.Button>

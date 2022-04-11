@@ -50,7 +50,7 @@ export const Logo: React.VFC<LogoProps> = () => {
     <Link href="/" passHref>
       <div className="flex-grow-0 flex items-center h-full cursor-pointer">
         <LogoIcon />
-        <h1 className="ml-2 text-xl md:text-2xl text-black font-medium select-none dark:text-white">
+        <h1 className="ml-2 text-xl md:text-2xl text-black font-bold select-none dark:text-white">
           SRCUBE
           <span className="text-base md:text-xl font-extralight">
             &nbsp;|&nbsp;
