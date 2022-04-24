@@ -1,0 +1,63 @@
+.gradient {
+  position: absolute;
+  top: -10rem;
+  left: -10rem;
+  right: -10rem;
+  bottom: -10rem;
+}
+
+.red {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}
+
+.orange {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 125, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}
+
+.yellow {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}
+
+.green {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 255, 0, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}
+
+.blue {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 0, 255, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}
+
+.indigo {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 125, 255, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}
+
+.violet {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 0, 125, 1) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+}

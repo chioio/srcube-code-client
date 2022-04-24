@@ -1,27 +1,28 @@
-import { RecoilRoot } from 'recoil'
-import { ApolloProvider } from '@apollo/client'
+import type { AppProps } from 'next/app'
+import { NextPage } from 'next'
+import { ReactElement, ReactNode, useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
-import { config } from '@fortawesome/fontawesome-svg-core'
-import { client } from '@lib/api/graphql'
+import AuthProvider from '@lib/context/AuthContext'
 
 import '../styles/globals.css'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 
-import type { AppProps } from 'next/app'
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
 
-config.autoAddCss = false
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
 
-const App = ({ Component, pageProps }: AppProps) => {
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout || ((page) => page)
+
   return (
     <>
       <Toaster position="top-center" />
-      <RecoilRoot>
-        <ApolloProvider client={client}>
-          <Component {...pageProps} />
-        </ApolloProvider>
-      </RecoilRoot>
+      <AuthProvider>{getLayout(<Component {...pageProps} />)}</AuthProvider>
     </>
   )
 }
-
-export default App

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  web:
+    container_name: web
+    build:
+      context: ./
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    volumes:
+      - .:/usr/src/app/web
+      - /usr/src/app/node_modules

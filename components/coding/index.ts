@@ -1,5 +1,0 @@
-export { CodePanel } from './CodePanel'
-export { HeaderPanel } from './HeaderPanel'
-export { MainPanel } from './MainPanel'
-export { PreviewPanel } from './PreviewPanel'
-export { TopView, LeftView, RightView } from './ViewsPanel'

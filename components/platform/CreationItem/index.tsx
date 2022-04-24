@@ -1,203 +1,73 @@
 import Link from 'next/link'
-import { Fragment, useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faComment } from '@fortawesome/free-regular-svg-icons'
-import { faEllipsis, faStar as fasStar } from '@fortawesome/free-solid-svg-icons'
+import {
+  faComment,
+  faExpand,
+  faStar as fasStar,
+} from '@fortawesome/free-solid-svg-icons'
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons'
 
-import { Actions } from './Actions'
-import { Preview } from './Preview'
-import { PreviewModal } from './PreviewModal'
-import { CreateStarInput, Creation, Star, User } from '@lib/api/schema'
-import { gql, useLazyQuery, useMutation } from '@apollo/client'
-import { useWindowMounted } from '@lib/hooks'
-import { useRecoilValue } from 'recoil'
-import { userProfileState } from '@lib/store/atoms'
-import { Popover, Transition } from '@headlessui/react'
-import { DeleteModal } from './DeleteModal'
+import { useAuth } from '@lib/context/AuthContext'
+import httpCsr from '@lib/utils/http-csr'
 import toast from 'react-hot-toast'
+import { TCreation, useCreations } from '@lib/context/CreationsContext'
+import { ActionMenu, CreationFrame } from '@components/platform'
+import { TUrlQuery } from 'pages/[username]'
+import { BASE_URL } from '@lib/utils'
+import { CreationModal } from '../CreationModal'
 
-interface CreationItemProps {
-  isCommon?: boolean
-  creation: Creation
+export type ICreationItem = {
+  creation: TCreation
 }
 
-type CreationItemQueryVariables = {
-  author: string
-  username: string
-  creationId: string
-}
+export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
+  const { whoAmI } = useAuth()
 
-type CreationItemQueryResponse = {
-  stars: Star[]
-  user: User
-}
+  const { dispatch } = useCreations()
 
-const CREATION_ITEM_QUERY = gql`
-  query CreationItemQuery($author: String!, $creationId: String!, $username: String) {
-    user(username: $author) {
-      avatar
-    }
-    stars(creationId: $creationId, username: $username) {
-      _id
-      user {
-        title
-        username
-        avatar
-      }
-    }
-  }
-`
+  const router = useRouter()
+  const { tab } = router.query as TUrlQuery
 
-type DeleteCreationVariables = {
-  _id: string
-}
+  const notWhoAmI = whoAmI?.id !== creation?.owner_id
 
-type DeleteCreationOutput = {
-  removeCreation: boolean
-}
+  const handleToggleStar = async () => {
+    if (whoAmI) {
+      const { status, data } = await httpCsr.put('/user/toggle-star', {
+        creation_id: creation.id,
+        star_id: creation.stars[0]?.id || null,
+      })
 
-const DELETE_CREATION_MUTATION = gql`
-  mutation RemoveCreation($_id: String!) {
-    removeCreation(_id: $_id)
-  }
-`
+      if (status === 201) {
+        // if in stars list, update creation list first
+        if (tab === 'stars')
+          dispatch({
+            type: 'REMOVE_STAR',
+            payload: { star_id: creation.stars[0]!.id },
+          })
 
-const STAR_COUNT_QUERY = gql`
-  query Query($creationId: String!) {
-    stars(creationId: $creationId) {
-      _id
-    }
-  }
-`
-
-const ADD_STAR_MUTATION = gql`
-  mutation CreateStar($createStarInput: CreateStarInput!) {
-    createStar(createStarInput: $createStarInput) {
-      _id
-    }
-  }
-`
-
-const CANCEL_STAR_MUTATION = gql`
-  mutation RemoveStar($removeStarId: String!) {
-    removeStar(_id: $removeStarId)
-  }
-`
-
-export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, creation }) => {
-  const isWindowMounted = useWindowMounted()
-
-  const profile = useRecoilValue(userProfileState)
-
-  const [isModalActive, setIsModalActive] = useState(false)
-  const [isDeleteModalActive, setIsDeleteModalActive] = useState(false)
-
-  const [starId, setStarId] = useState('')
-  const [starCount, setStarCount] = useState(0)
-
-  const [judgeStared, { data }] = useLazyQuery<CreationItemQueryResponse, CreationItemQueryVariables>(
-    CREATION_ITEM_QUERY,
-    {
-      variables: {
-        author: creation.author,
-        creationId: creation._id,
-        username: profile.username,
-      },
-      onCompleted: (data) => {
-        if (data) {
-          if (data.stars.length !== 0) {
-            setStarId(data.stars[0]._id)
-          } else {
-            setStarId('')
-          }
+        // update star count and stars in pins list or creations list
+        if (tab === 'pins' || tab === 'creations') {
+          dispatch({
+            type: 'TOGGLE_STAR',
+            payload: {
+              star: data,
+              creation_id: creation.id,
+            },
+          })
         }
-      },
-    },
-  )
-
-  const [getStarCount] = useLazyQuery(STAR_COUNT_QUERY, {
-    variables: {
-      creationId: creation._id,
-    },
-    onCompleted: (data) => {
-      if (data) {
-        setStarCount(data.stars.length)
       }
-    },
-  })
-
-  const [addStar] = useMutation<{ createStar: { _id: string } }, { createStarInput: CreateStarInput }>(
-    ADD_STAR_MUTATION,
-    {
-      variables: {
-        createStarInput: {
-          username: profile.username,
-          creationId: creation._id,
-        },
-      },
-      onCompleted: (data) => {
-        if (data) {
-          setStarId(data.createStar._id)
-          getStarCount()
-        }
-      },
-    },
-  )
-
-  const [cancelStar] = useMutation(CANCEL_STAR_MUTATION, {
-    variables: {
-      removeStarId: starId,
-    },
-    onCompleted: (data) => {
-      if (data) {
-        setStarId('')
-        getStarCount()
-      }
-    },
-  })
-
-  const [deleteCreation, { loading }] = useMutation<DeleteCreationOutput, DeleteCreationVariables>(
-    DELETE_CREATION_MUTATION,
-    {
-      variables: {
-        _id: creation._id,
-      },
-      onCompleted: (data) => {
-        if (data) {
-          data.removeCreation && toast.success('Delete success!')
-        }
-      },
-    },
-  )
-
-  const handleStar = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-
-    if (!starId) {
-      addStar()
     } else {
-      cancelStar()
-    }
-    console.log('star!')
-  }
-
-  const handleDeleteConfirm = () => {
-    deleteCreation()
-    if (!loading) {
-      setIsDeleteModalActive(false)
+      toast.error('You must be logged in to star creations.')
     }
   }
-
-  useEffect(() => {
-    getStarCount()
-    judgeStared()
-  }, [creation])
 
   const styles = {
     meta: {
-      button: `${!isCommon ? 'ml-3.5' : ''} px-2 space-x-1 rounded font-semibold bg-black/5 hover:bg-black/20`,
+      button: `${
+        notWhoAmI ? 'ml-3.5' : ''
+      } px-2 space-x-1 rounded font-semibold bg-black/5 hover:bg-black/20`,
     },
   }
 
@@ -206,86 +76,83 @@ export const CreationItem: React.VFC<CreationItemProps> = ({ isCommon = true, cr
       className={`group relative p-3.5 -z-0 w-full h-fit
       hover:after:inset-0 hover:after:rounded-2xl
       after:absolute after:top-7 ${
-        isCommon ? 'after:left-7 after:bottom-6' : 'after:left-3.5 after:bottom-0'
+        notWhoAmI
+          ? 'after:left-7 after:bottom-6'
+          : 'after:left-3.5 after:bottom-0'
       } after:right-0 after:rounded-lg after:-z-10 after:bg-gray-200/60 after:transition-all after:duration-300`}
     >
-      <Preview creation={creation} />
+      {/* Preview */}
+      <div className="relative flex items-center justify-center py-[25%] w-full h-full rounded-xl overflow-hidden bg-red-500 text-white">
+        <button
+          onClick={() => {}}
+          className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl cursor-pointer
+          after:absolute after:right-0 after:top-0 group-hover:after:inset-0 after:cursor-pointer after:z-30 after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent "
+        >
+          <FontAwesomeIcon
+            icon={faExpand}
+            className="z-40 absolute top-4 right-4"
+          />
+        </button>
+        <CreationFrame
+          title={creation?.title}
+          html={creation?.code_html}
+          css={creation?.code_css}
+          js={creation?.code_js}
+        />
+      </div>
+      {/* Meta */}
       <div className="">
         <div className="mt-3 flex items-center">
-          {isCommon && (
-            <Link href="/[username]" as={`/${creation.author}`}>
-              <img src={data?.user.avatar} className="w-12 rounded-lg bg-white cursor-pointer" alt="" />
+          {notWhoAmI && (
+            <Link href="/[username]" as={`/${creation?.owner}`}>
+              <img
+                src={`${BASE_URL}/${creation?.owner.profile.avatar}`}
+                className="w-12 rounded-lg bg-white cursor-pointer"
+                alt=""
+              />
             </Link>
           )}
-          <div className="flex flex-col flex-grow">
-            <Link href="/[username]/creation/[id]" as={`/${creation.author}/creation/${creation._id}`}>
-              <h2 className="flex-1 ml-3.5 mt-0.5 text-lg font-extrabold cursor-pointer hover:text-blue-600">
-                {creation.title}
+          {/* USER */}
+          <div className="flex flex-col flex-grow overflow-hidden">
+            <Link
+              href="/[username]/creation/[id]"
+              as={`/${creation?.owner?.username}/creation/${creation?.id}`}
+            >
+              <h2 className="flex-1 ml-3.5 mt-0.5 text-lg font-extrabold truncate cursor-pointer hover:text-blue-600">
+                {creation?.title}
               </h2>
             </Link>
-            {isCommon && (
-              <Link href="/[username]" as={`/${creation.author}`}>
-                <h3 className="ml-3.5 text-gray-500 cursor-pointer hover:text-gray-600">@{creation.author}</h3>
+            {notWhoAmI && (
+              <Link href="/[username]" as={`/${creation?.owner?.username}`}>
+                <h3 className="inline-block w-fit ml-3.5 text-gray-500 cursor-pointer hover:text-gray-600">
+                  {'@' + creation?.owner?.username}
+                </h3>
               </Link>
             )}
           </div>
-          {/* ACTIONS */}
-          <Popover className="inline-block relative">
-            {({ open }) => (
-              <>
-                <Popover.Button
-                  className={`m-1 w-7 h-7 text-lg hover:text-black rounded-full active:bg-black/5 ${
-                    open ? 'bg-white text-black' : 'text-black/30'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faEllipsis} />
-                </Popover.Button>
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-200"
-                  enterFrom="opacity-0 translate-y-1"
-                  enterTo="opacity-100 translate-y-0"
-                  leave="transition ease-in duration-150"
-                  leaveFrom="opacity-100 translate-y-0"
-                  leaveTo="opacity-0 translate-y-1"
-                >
-                  <Popover.Panel className="absolute bottom-9 right-0 px-2 py-3 mt-2 w-fit z-50 rounded-lg bg-white shadow-lg">
-                    <Actions
-                      open={open}
-                      owner={creation.author}
-                      creationId={creation._id}
-                      onDelete={() => setIsDeleteModalActive(true)}
-                    />
-                  </Popover.Panel>
-                </Transition>
-              </>
-            )}
-          </Popover>
+          {/* ACTION MENU */}
+          <ActionMenu creation={creation} />
         </div>
         <div
-          className={`${
-            isCommon
-              ? 'relative left-7 opacity-0 group-hover:opacity-100 group-hover:left-0 transition-all delay-75 duration-500'
+          className={`relative left-7 ${
+            notWhoAmI
+              ? 'opacity-0 group-hover:opacity-100 group-hover:left-0 transition-all delay-75 duration-500'
               : 'block'
           } mt-2 -mb-1 space-x-2`}
         >
-          <button onClick={handleStar} className={styles.meta.button}>
-            <FontAwesomeIcon icon={starId ? fasStar : farStar} className={`${starId ? 'text-yellow-400' : ''}`} />
-            <span className="text-sm">{starCount}</span>
+          <button onClick={handleToggleStar} className={styles.meta.button}>
+            <FontAwesomeIcon
+              icon={creation?.stars.length ? fasStar : farStar}
+              className={`${creation?.stars.length ? 'text-yellow-400' : ''}`}
+            />
+            <span className="text-sm">{creation?._count?.stars}</span>
           </button>
-          <button onClick={() => setIsModalActive(true)} className={styles.meta.button}>
+          <button onClick={() => {}} className={styles.meta.button}>
             <FontAwesomeIcon icon={faComment} />
-            <span className="text-sm">{creation.comments}</span>
+            <span className="text-sm">{creation?._count?.comments}</span>
           </button>
         </div>
-        {isModalActive && (
-          <PreviewModal isActive={isModalActive} creationId={creation._id} onClose={() => setIsModalActive(false)} />
-        )}
-        <DeleteModal
-          isActive={isDeleteModalActive}
-          onConfirm={handleDeleteConfirm}
-          onClose={() => setIsDeleteModalActive(false)}
-        />
+        <CreationModal creation={creation} />
       </div>
     </article>
   )

@@ -5,6 +5,18 @@
 @font-face {
   font-family: 'Jost';
   src: url('../lib/assets/fonts/Jost/Jost-VariableFont_wght.ttf');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('../lib/assets/fonts/Jost/Jost-VariableFont_wght.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('../lib/assets/fonts/Jost/Jost-VariableFont_wght.ttf');
   font-weight: 600;
   font-style: normal;
 }
@@ -14,23 +26,11 @@
   h2,
   h3,
   h4,
-  h5 {
-    font-family: 'Jost', sans-serif;
-  }
-  h1,
-  h2,
-  h3,
-  h4,
   h5,
   h6 {
-    @apply font-bold;
+    @apply font-['Jost'] font-bold;
   }
-  h1 {
-    @apply text-4xl;
-  }
-  h2 {
-    @apply text-2xl;
-  }
+
   a,
   button {
     @apply cursor-pointer;
@@ -38,12 +38,23 @@
 }
 
 @layer components {
-  .vs .monaco-scrollable-element > .scrollbar > .slider {
+  .monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
     @apply bg-slate-800 bg-opacity-10 rounded;
   }
 
+  .monaco-editor .monaco-editor-overlaymessage .message {
+    @apply !bg-red-500 !text-white !border-red-500 shadow-sm rounded-r rounded-tl;
+  }
+
+  .monaco-editor .monaco-editor-overlaymessage .anchor.below {
+    @apply !border-t-red-600;
+  }
+  .monaco-editor .monaco-editor-overlaymessage .anchor.top {
+    @apply !border-b-red-600;
+  }
+
   .split-panel {
-    @apply flex-1 dark:border-gray-800;
+    @apply h-full w-full;
   }
 
   .split-panel .gutter {
@@ -56,19 +67,5 @@
 
   .split-panel .gutter.gutter-vertical {
     @apply cursor-row-resize before:content-[''] before:w-10 before:h-full before:rounded before:bg-blue-200 before:hover:bg-blue-600;
-  }
-
-  .slide {
-    --position-offset: 0%;
-    transform: translateX(var(--position-offset));
-    transition: transform 0.3s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.4s linear;
-  }
-
-  .slide[data-position='-1'] {
-    --position-offset: -100%;
-  }
-
-  .slide[data-position='1'] {
-    --position-offset: 100%;
   }
 }

@@ -1,30 +1,31 @@
+import http from '@lib/utils/http-csr'
 import { useEffect, useState } from 'react'
-import { useLazyQuery } from '@apollo/client'
-import { toast } from 'react-hot-toast'
-
-import { Result, Variables } from '@lib/api/graphql'
-import { EXISTED_CHECK_QUERY } from '@lib/api/queries'
-import { ExistedCheckInput, ExistedCheckOutput } from '@lib/api/schema'
+import { TExistedCheckDto } from 'typings'
 
 export const useExistedCheck = () => {
-  const [isExisted, setExisted] = useState<boolean>(false)
-  const [variables, setVariables] = useState<ExistedCheckInput>()
+  const [isExisted, setIsExisted] = useState(false)
 
-  const [existedCheck] = useLazyQuery<Result<ExistedCheckOutput>, Variables<ExistedCheckInput>>(EXISTED_CHECK_QUERY, {
-    onCompleted: (data) => {
-      setExisted(data.existedCheck.result)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const [input, setInput] = useState<TExistedCheckDto | null>(null)
 
   useEffect(() => {
-    variables && existedCheck({ variables: { input: variables } })
-  }, [variables])
+    input &&
+      requestExistedCheck(input).then(({ isExisted }) => {
+        setIsExisted(isExisted)
+      })
+  }, [input])
 
   return {
     isExisted,
-    setVariables,
+    setInput,
   }
+}
+
+const requestExistedCheck = async (input: TExistedCheckDto) => {
+  const { data, status } = await http.post('/auth/existed-check', input)
+
+  if (status === 200) {
+    return data
+  }
+
+  return null
 }

@@ -21,6 +21,6 @@
       "@lib/*": ["lib/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "typings.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

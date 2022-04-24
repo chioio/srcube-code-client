@@ -1,64 +1,41 @@
-import { NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useMutation } from '@apollo/client'
-import { useRouter } from 'next/router'
+import Router from 'next/router'
+import { useEffect } from 'react'
+import { useState } from 'react'
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { toast } from 'react-hot-toast'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faKissWinkHeart as fasKissWinkHeart } from '@fortawesome/free-solid-svg-icons'
 import * as Yup from 'yup'
+import toast from 'react-hot-toast'
 
-import { Layout, Links, Meta, Header, Footer, Main } from '@components/common'
-import { Input } from '@components/base'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faKissWinkHeart } from '@fortawesome/free-solid-svg-icons'
 
-import { useWindowMounted, useExistedCheck } from '@lib/hooks'
-
-import { AccountType, SignInInput, SignInOutput } from '@lib/api/schema'
-import { SIGN_IN_MUTATION } from '@lib/api/mutations'
-import { Result, Variables } from '@lib/api/graphql'
-import { useRecoilState } from 'recoil'
-import { userProfileState } from '@lib/store/atoms'
+import { Meta, Links, Content, Layout, Header, Footer } from '@components/common'
+import { FormInput } from '@components/platform'
+import { useExistedCheck } from '@lib/hooks'
+import httpCsr from '@lib/utils/http-csr'
+import { EAccountType } from 'typings'
 
 interface Fields {
   account: string
   password: string
-  type: AccountType
+  type: EAccountType
 }
 
-const SignIn: NextPage = () => {
-  // For the input control value changing
+export default function SignIn() {
   const [isChanged, setIsChanged] = useState(false)
-
-  const [, setUserProfile] = useRecoilState(userProfileState)
-
-  const router = useRouter()
-  const isWindowMounted = useWindowMounted()
   const accountExistedCheck = useExistedCheck()
-
-  const [signIn] = useMutation<Result<SignInOutput>, Variables<SignInInput>>(SIGN_IN_MUTATION, {
-    onCompleted: (data) => {
-      toast.success('Hello, ' + data.signIn.profile.username + '!')
-
-      setUserProfile(data.signIn.profile)
-
-      isWindowMounted &&
-        (localStorage.setItem('token', data.signIn.token), localStorage.setItem('user', data.signIn.profile.username))
-
-      router.push('/')
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
 
   // Validation schema
   const schema = Yup.object().shape({
     account: Yup.string()
       .required('Account is required!')
-      .test('existed-check', 'This account has not been registered!', () => accountExistedCheck.isExisted),
+      .test(
+        'existed-check',
+        'This account has not been registered!',
+        () => accountExistedCheck.isExisted
+      ),
     password: Yup.string().required('Password is required!'),
   })
 
@@ -69,22 +46,23 @@ const SignIn: NextPage = () => {
     defaultValues: {
       account: '',
       password: '',
-      type: AccountType.USERNAME,
+      type: EAccountType.USERNAME,
     },
     resolver: yupResolver(schema),
   })
 
   // Form submit handler
-  const submitHandler: SubmitHandler<Fields> = ({ account, password, type }) => {
-    signIn({
-      variables: {
-        input: {
-          account: account,
-          password: password,
-          type: type,
-        },
-      },
-    })
+  const submitHandler: SubmitHandler<Fields> = async (fields) => {
+    const { data, status } = await httpCsr.post('/auth/sign-in', fields)
+
+    if (status === 200) {
+      localStorage.setItem('access-token', data.access_token)
+      localStorage.setItem('refresh-token', data.refresh_token)
+
+      toast.success('Sign in successfully!')
+
+      Router.push('/')
+    }
   }
 
   useEffect(() => {
@@ -104,21 +82,24 @@ const SignIn: NextPage = () => {
         <Header />
 
         {/* CONTENT */}
-        <Main decorated>
+        <Content decorated>
           <FormProvider {...form}>
             <form
               onSubmit={form.handleSubmit(submitHandler)}
               className="mx-auto my-12 pt-10 pb-12 px-8 w-3/4 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-[40%] bg-white rounded-xl shadow-sm dark:bg-gray-800/70"
             >
               <h1 className="mb-6 text-3xl md:text-4xl font-bold text-black dark:text-white">
-                <FontAwesomeIcon icon={fasKissWinkHeart} className="mr-3" />
+                <FontAwesomeIcon icon={faKissWinkHeart} className="mr-3" />
                 Sign In!
               </h1>
               {/* Account Input */}
-              <label htmlFor="account" className="text-lg leading-9 dark:text-gray-300">
+              <label
+                htmlFor="account"
+                className="text-lg leading-9 dark:text-gray-300"
+              >
                 Account
               </label>
-              <Input
+              <FormInput
                 type="text"
                 id="account"
                 placeholder="username | xxx@example.com"
@@ -127,43 +108,54 @@ const SignIn: NextPage = () => {
                   onChange: () => setIsChanged(true),
                   onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
                     if (isChanged && e.target.value) {
-                      const isEmail = await Yup.string().email().isValid(e.target.value)
+                      const isEmail = await Yup.string()
+                        .email()
+                        .isValid(e.target.value)
 
                       isEmail &&
-                        (accountExistedCheck.setVariables({
-                          type: AccountType.EMAIL,
+                        (accountExistedCheck.setInput({
+                          type: EAccountType.EMAIL,
                           value: e.target.value,
                         }),
-                        form.setValue('type', AccountType.EMAIL))
+                        form.setValue('type', EAccountType.EMAIL))
                       isEmail ||
-                        (accountExistedCheck.setVariables({
-                          type: AccountType.USERNAME,
+                        (accountExistedCheck.setInput({
+                          type: EAccountType.USERNAME,
                           value: e.target.value,
                         }),
-                        form.setValue('type', AccountType.USERNAME))
+                        form.setValue('type', EAccountType.USERNAME))
                       setIsChanged(false)
                     }
                     form.trigger('account')
                   },
                 })}
               />
-              <p className="text-sm text-red-500">{form.formState.errors['account']?.message}</p>
+              <p className="text-sm text-red-500">
+                {form.formState.errors['account']?.message}
+              </p>
               {/* Password Input */}
-              <label htmlFor="password" className="text-lg leading-9 dark:text-gray-300">
+              <label
+                htmlFor="password"
+                className="text-lg leading-9 dark:text-gray-300"
+              >
                 Password
               </label>
-              <Input
+              <FormInput
                 type="password"
                 id="password"
                 {...form.register('password', {
                   onBlur: () => form.trigger('password'),
                 })}
               />
-              <p className="text-sm text-red-500">{form.formState.errors['password']?.message}</p>
+              <p className="text-sm text-red-500">
+                {form.formState.errors['password']?.message}
+              </p>
               {/* Links */}
               <div className="flex justify-end">
                 <Link href="/sign-up">
-                  <a className="my-2 text-blue-400 cursor-pointer hover:underline">Still don&apos;t have an account?</a>
+                  <a className="my-2 text-blue-400 cursor-pointer hover:underline">
+                    Still don&apos;t have an account?
+                  </a>
                 </Link>
               </div>
               {/* Submit Input */}
@@ -174,7 +166,7 @@ const SignIn: NextPage = () => {
               />
             </form>
           </FormProvider>
-        </Main>
+        </Content>
 
         {/* FOOTER */}
         <Footer />
@@ -182,5 +174,3 @@ const SignIn: NextPage = () => {
     </>
   )
 }
-
-export default SignIn

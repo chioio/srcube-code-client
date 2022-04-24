@@ -6,16 +6,16 @@
 
 ## Tech stack
 
-* React with TypeScript for the basic UI
- building.
+* RESTful API
+* React with TypeScript for the basic UI building.
 * Next.js for architect the basic SSR application.
+* React Context API manage state.
 * Tailwind CSS 3.0 build the app styles.
-* Apollo GraphQL Client and GraphQL for API
-* Recoil for manage app state.
 * Fontawesome Icons support
 * Monaco-editor for the code editor
 * React hook form for building the forms.
 * Yup for form data validation.
+* WebAssembly for code highlight.
 * etc.
 
 ## Development
