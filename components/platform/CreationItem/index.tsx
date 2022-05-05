@@ -13,10 +13,9 @@ import { useAuth } from '@lib/context/AuthContext'
 import httpCsr from '@lib/utils/http-csr'
 import toast from 'react-hot-toast'
 import { TCreation, useCreations } from '@lib/context/CreationsContext'
-import { ActionMenu, CreationFrame } from '@components/platform'
+import { ActionMenu, CreationFrame, PreviewModal } from '@components/platform'
 import { TUrlQuery } from 'pages/[username]'
 import { BASE_URL } from '@lib/utils'
-import { CreationModal } from '../CreationModal'
 
 export type ICreationItem = {
   creation: TCreation
@@ -104,7 +103,7 @@ export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
       <div className="">
         <div className="mt-3 flex items-center">
           {notWhoAmI && (
-            <Link href="/[username]" as={`/${creation?.owner}`}>
+            <Link href="/[username]" as={`/${creation?.owner.username}`}>
               <img
                 src={`${BASE_URL}/${creation?.owner.profile.avatar}`}
                 className="w-12 rounded-lg bg-white cursor-pointer"
@@ -136,7 +135,7 @@ export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
         <div
           className={`relative left-7 ${
             notWhoAmI
-              ? 'opacity-0 group-hover:opacity-100 group-hover:left-0 transition-all delay-75 duration-500'
+              ? 'opacity-0 group-hover:opacity-100 group-hover:left-0 transition-all hover:delay-300 duration-300 '
               : 'block'
           } mt-2 -mb-1 space-x-2`}
         >
@@ -152,7 +151,11 @@ export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
             <span className="text-sm">{creation?._count?.comments}</span>
           </button>
         </div>
-        <CreationModal creation={creation} />
+        <PreviewModal
+          creation={creation}
+          opened={false}
+          onClose={function (): void {}}
+        />
       </div>
     </article>
   )

@@ -73,12 +73,12 @@ export default function User(user: TUserProfile) {
         {/* CONTENT */}
         <Content decorated>
           <div className="h-80 bg-center banner">
-            {/* <Banner /> */}
+            <Banner />
           </div>
-          <div className="relative max-w-screen-xl md:px-8 mx-auto mb-16 grid grid-cols-12 gap-x-8">
+          <div className="relative max-w-6xl md:px-8 mx-auto mb-16 w-full grid grid-cols-12 gap-x-8">
             <ProfileContext context={{ user }}>
               <Profile />
-              <div className="flex flex-col col-span-8 2xl:col-span-9">
+              <div className="flex flex-col col-span-8 2xl:col-span-9 w-full">
                 <Navigation />
                 <div className="flex-1 p-4 rounded-b-md bg-white">
                   {(!tab && <Overview />) ||
@@ -153,20 +153,20 @@ const Profile: React.FC<any> = ({}) => {
   return (
     <div className="-mt-32 lg:-mt-44 col-span-4 2xl:col-span-3">
       <img
-        src={`${BASE_URL}/${user.profile.avatar}`}
-        alt={user.username}
+        src={`${BASE_URL}/${user?.profile?.avatar}`}
+        alt={user?.username}
         className="mx-auto w-[16rem] h-[16rem] rounded-full border-[10px] bg-white border-white"
       />
       <div className="mt-8 p-6 rounded-md bg-white">
         <div className="mt-2 mb-4">
           <h1 className="text-3xl inline text-center">
-            {user.first_name + ' ' + user.last_name}
+            {user?.first_name + ' ' + user?.last_name}
           </h1>
           <div className="space-x-4">
             <p className="inline-block text-lg font-medium text-gray-400">
               @{user.username}
             </p>
-            {whoAmI && whoAmI.id !== user.id ? (
+            {whoAmI && whoAmI.id !== user?.id ? (
               <button
                 onClick={handleToggleFollow}
                 className={`w-20 px-2 h-fit text-sm leading-4 text-white font-['Jost'] font-medium rounded-lg border-2 ${
@@ -183,13 +183,13 @@ const Profile: React.FC<any> = ({}) => {
         <div className="font-medium">
           <Link href={`/${user.username}?tab=followers`}>
             <a className="pr-4 hover:text-blue-600">
-              {user._count.followers} followers
+              {user?._count?.followers} followers
             </a>
           </Link>
           <span className="font-extrabold">·</span>
           <Link href={`/${user.username}?tab=following`}>
             <a className="pl-4 hover:text-blue-600">
-              {user._count.followees} following
+              {user?._count?.followees} following
             </a>
           </Link>
         </div>
@@ -199,24 +199,24 @@ const Profile: React.FC<any> = ({}) => {
               icon={faMeteor}
               className="font-medium text-gray-900"
             />
-            <span>{user.profile.bio}</span>
+            <span>{user?.profile.bio}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faBuilding} className="text-gray-900" />
-            <span>{user.profile.org}</span>
+            <span>{user?.profile.org}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faLocationArrow} className="text-gray-900" />
-            <span>{user.profile.location}</span>
+            <span>{user?.profile.location}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faEnvelope} className="text-gray-900" />
-            <span>{user.email}</span>
+            <span>{user?.email}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faLink} className="text-gray-900" />
             <Link href={user.profile.website || '/'}>
-              <a className="hover:text-blue-600">{user.profile.website}</a>
+              <a className="hover:text-blue-600">{user?.profile.website}</a>
             </Link>
           </div>
         </div>

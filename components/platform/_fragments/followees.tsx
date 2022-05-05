@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { EGetFollowsType, Follow, Profile, User } from 'typings'
-import { TUrlQuery } from '..'
 import httpCsr from '@lib/utils/http-csr'
 import { useAuth } from '@lib/context/AuthContext'
 import toast from 'react-hot-toast'
@@ -9,6 +8,7 @@ import { useProfile } from '@lib/context/ProfileContext'
 import { Pagination } from '@components/platform'
 import { BASE_URL } from '@lib/utils'
 import Link from 'next/link'
+import { TUrlQuery } from 'pages/[username]'
 
 type TFollowee = Follow & {
   followee: User & {

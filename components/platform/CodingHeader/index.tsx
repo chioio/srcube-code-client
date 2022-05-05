@@ -15,6 +15,7 @@ import { ViewSwitcher } from '../CodingViewSwitcher'
 import { useCoding } from '@lib/context/CodingContext'
 import httpCsr from '@lib/utils/http-csr'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 export const CodingHeader: React.FC<any> = () => {
   const { whoAmI } = useAuth()
@@ -56,23 +57,27 @@ export const SaveButton: React.VFC<any> = () => {
   const { id } = router.query
 
   const handleSave = async () => {
-    const { data, status } = await httpCsr.post('/creation', {
+    const param = {
       title: creation.title,
       code_html: creation.code_html,
       code_css: creation.code_css,
       code_js: creation.code_js,
-    })
+    }
+
+    const { data, status } = id
+      ? await httpCsr.post(`/creation/${id}`, param)
+      : await httpCsr.post('/creation', param)
+
+    if (status === 200) {
+      toast.success('Save success!')
+    }
 
     if (status === 201) {
-      if (id) {
-        toast.success('Save success!')
-      } else {
-        toast.success('Create success!')
-        router.push(
-          '/[username]/creation/[id]',
-          `/${whoAmI?.username}/creation/${data.id}`
-        )
-      }
+      toast.success('Create success!')
+      router.push(
+        '/[username]/creation/[id]',
+        `/${whoAmI?.username}/creation/${data.id}`
+      )
     }
   }
 
@@ -91,8 +96,6 @@ export const ForkButton: React.VFC<any> = () => {
   const { whoAmI } = useAuth()
   const [creation, setCreation] = useState({})
 
-  const router = useRouter()
-
   const handleFork = () => {
     const { _id, createdAt, updatedAt, stars, comments, ...rest } =
       creation as any
@@ -110,14 +113,17 @@ export const ForkButton: React.VFC<any> = () => {
 }
 
 export const CreationTitle: React.VFC<any> = () => {
+  const router = useRouter()
+  const { username } = router.query as TUrlQuery
+
   const [isEditable, setIsEditable] = useState<boolean>(false)
 
   const { creation, dispatch } = useCoding()
   const [title, setTitle] = useState(creation?.title)
 
   return (
-    <div className="flex-grow ml-3">
-      <h2>
+    <div className="flex-grow flex flex-col ml-3">
+      <h2 className="leading-4">
         {isEditable ? (
           <input
             id="editable-title-input"
@@ -155,9 +161,13 @@ export const CreationTitle: React.VFC<any> = () => {
           </>
         )}
       </h2>
-      <p className="text-sm font-medium opacity-40">
-        {creation?.owner?.username}
-      </p>
+      {username && (
+        <Link href={`/${creation.owner?.username}`}>
+          <a className="inline text-sm leading-3 font-medium opacity-40">
+            <span>{'@' + creation?.owner?.username}</span>
+          </a>
+        </Link>
+      )}
     </div>
   )
 }

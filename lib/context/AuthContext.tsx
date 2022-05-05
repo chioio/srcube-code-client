@@ -5,8 +5,6 @@ import { useEffect } from 'react'
 import { TWhoAmI } from 'typings'
 
 interface IAuthContext {
-  // signed: boolean
-  // setSigned: (signed: boolean) => void
   whoAmI: TWhoAmI | null
   setWhoAmI: (whoAmI: TWhoAmI | null) => void
 }

@@ -13,12 +13,11 @@ import CodeEditorProvider from '@lib/context/CodeEditorContext'
 import CodingProvider, { CodingConsumer, EViewDirection, useCoding } from '@lib/context/CodingContext'
 
 export default function Create() {
-  const { creation } = useCoding()
 
   return (
     <>
       <Head>
-        <title>Srcube | {creation.title}</title>
+        <title>Srcube | Untitled</title>
         <Meta />
         <Links />
       </Head>
@@ -35,17 +34,17 @@ export default function Create() {
                   <>
                     {direction === EViewDirection.LEFT && (
                       <LeftView>
-                        <CodingEditors />
+                        <CodingEditors code={{ html: '', css: '', js: ''}} />
                       </LeftView>
                     )}
                     {direction === EViewDirection.TOP && (
                       <TopView>
-                        <CodingEditors />
+                        <CodingEditors code={{ html: '', css: '', js: ''}} />
                       </TopView>
                     )}
                     {direction === EViewDirection.RIGHT && (
                       <RightView>
-                        <CodingEditors />
+                        <CodingEditors code={{ html: '', css: '', js: ''}} />
                       </RightView>
                     )}
                   </>

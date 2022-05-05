@@ -188,3 +188,8 @@ export enum EGetCreationsType {
   PINS = 'PINS',
   CREATIONS = 'CREATIONS',
 }
+
+export interface IModal {
+  opened: boolean
+  onClose: () => void
+}

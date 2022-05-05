@@ -102,6 +102,7 @@ export const CreationPreview: React.VFC<any> = ({ creation }) => {
                       lang={ECodeEditorLanguage.HTML}
                       value={creation.code_html}
                       defaultValue="<!-- Text HTML here... -->"
+                      onChange={function (value?: string | undefined): void {}}
                       readOnly
                     />
                   )}
@@ -110,6 +111,7 @@ export const CreationPreview: React.VFC<any> = ({ creation }) => {
                       lang={ECodeEditorLanguage.CSS}
                       value={creation.code_css}
                       defaultValue="/* Text CSS here... */"
+                      onChange={function (value?: string | undefined): void {}}
                       readOnly
                     />
                   )}
@@ -118,7 +120,8 @@ export const CreationPreview: React.VFC<any> = ({ creation }) => {
                       lang={ECodeEditorLanguage.JS}
                       value={creation.code_js}
                       defaultValue="// Text JavaScript here..."
-                      // readOnly
+                      readOnly
+                      onChange={function (value?: string | undefined): void {}}
                     />
                   )}
                 </div>
