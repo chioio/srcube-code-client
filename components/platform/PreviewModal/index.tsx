@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { faCheck, faEdit, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -8,21 +8,44 @@ import { CreationPreview } from '../CreationPreview'
 import { CreationComment } from '../CreationComment'
 import { CreationShareLink } from '../CreationShareLink'
 import CodeEditorProvider from '@lib/context/CodeEditorContext'
+import { useAuth } from '@lib/context/AuthContext'
+import { IModal } from 'typings'
+import httpCsr from '@lib/utils/http-csr'
 
-export const CreationModal: React.FC<any> = ({ creation }) => {
+interface IPreviewModal extends IModal {
+  creation: any
+}
+
+export const PreviewModal: React.FC<IPreviewModal> = ({
+  creation,
+  opened,
+  onClose,
+}) => {
+  const { whoAmI } = useAuth()
+
   const router = useRouter()
 
-  const [isFollowed, setIsFollowed] = useState(false)
+  const [followedId, setFollowedId] = useState(false)
+
+  useEffect(() => {
+    const fetchFollowed = async () => {
+      const { data, status } = await httpCsr.get(
+        `/follow/is-followed?creation_id=${creation.id}`
+      )
+      if (status === 200) {
+        setFollowedId(data)
+      }
+    }
+
+    whoAmI && fetchFollowed()
+  }, [whoAmI])
+
   return (
-    <Transition
-      appear
-      show={creation.id === '625dd60162aa09b6ed028e5e'}
-      as={Fragment}
-    >
+    <Transition appear show={opened} as={Fragment}>
       <Dialog
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto"
-        onClose={() => {}}
+        onClose={onClose}
       >
         <div className="px-4">
           <Transition.Child
@@ -71,15 +94,19 @@ export const CreationModal: React.FC<any> = ({ creation }) => {
                       <h2 className="h-fit text-base">
                         @{creation.owner.username}
                       </h2>
-                      <button
-                        onClick={() => {}}
-                        className={`px-2 space-x-1 h-fit text-sm rounded-md ${
-                          isFollowed ? 'bg-green-600' : 'bg-blue-600'
-                        } text-white active:ring-2 active:ring-green-600/40`}
-                      >
-                        <FontAwesomeIcon icon={isFollowed ? faCheck : faPlus} />
-                        <span>{isFollowed ? 'Unfollow' : 'Follow'}</span>
-                      </button>
+                      {whoAmI?.id !== creation.owner_id && (
+                        <button
+                          onClick={() => {}}
+                          className={`px-2 space-x-1 h-fit text-sm rounded-md ${
+                            followedId ? 'bg-green-600' : 'bg-orange-500'
+                          } text-white active:ring-2 active:ring-green-600/40`}
+                        >
+                          <FontAwesomeIcon
+                            icon={followedId ? faCheck : faPlus}
+                          />
+                          <span>{followedId ? 'Unfollow' : 'Follow'}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                   {/* Actions */}

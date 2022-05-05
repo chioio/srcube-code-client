@@ -12,7 +12,7 @@ import { registry } from '@lib/monaco/language'
 import cssFormatMonaco from 'css-format-monaco'
 
 import VS_DARK from '@lib/monaco/themes/vs-dark.json'
-import GH_LIGHT from '@lib/monaco/themes/github/light.json'
+import GH_LIGHT from '@lib/monaco/themes/github/light-high-contrast.json'
 import GH_DARK from '@lib/monaco/themes/github/dark.json'
 import GH_LIGHT_COLORBLIND from '@lib/monaco/themes/github/light-colorblind.json'
 
@@ -39,6 +39,7 @@ export enum ECodeEditorLanguage {
   CSS = 'css',
   HTML = 'html',
   JS = 'javascript',
+  TS = 'typescript',
 }
 
 interface ICodeEditor {
@@ -61,7 +62,7 @@ export const CodeEditor: React.FC<ICodeEditor> = ({
 
   const editorRef = useRef<Monaco.editor.ICodeEditor>()
 
-  const handleMount = async (
+  const handleMount = (
     editor: Monaco.editor.ICodeEditor,
     monaco: typeof Monaco
   ) => {
@@ -87,32 +88,39 @@ export const CodeEditor: React.FC<ICodeEditor> = ({
       GH_DARK as unknown as Monaco.editor.IStandaloneThemeData
     )
 
-    // Load grammar
-    const grammars = new Map()
-    {
-      grammars.set('css', 'source.css')
-      grammars.set('html', 'text.html.basic')
-      grammars.set('javascript', 'source.js')
-      grammars.set('javascript', 'source.js.jsx')
-      // grammars.set('jsx', 'source.js.jsx')
-      // grammars.set('svelte', 'source.svelte');
-      // grammars.set('tsx', 'source.tsx')
-      grammars.set('typescript', 'source.ts')
-      grammars.set('typescript', 'source.tsx')
-      // grammars.set('vue', 'source.vue');
+    const loadGrammars = async () => {
+      // Load grammar
+      const grammars = new Map()
+
+      switch (lang) {
+        case ECodeEditorLanguage.HTML:
+          grammars.set('html', 'text.html.basic')
+          monaco.languages.register({ id: 'html' })
+          break
+        case ECodeEditorLanguage.CSS:
+          grammars.set('css', 'source.css')
+          monaco.languages.register({ id: 'css' })
+          break
+        case ECodeEditorLanguage.JS:
+          grammars.set('javascript', 'source.js')
+          grammars.set('javascript', 'source.js.jsx')
+          monaco.languages.register({ id: 'jsx' })
+          monaco.languages.register({ id: 'javascript' })
+          break
+        case ECodeEditorLanguage.TS:
+          grammars.set('typescript', 'source.ts')
+          grammars.set('typescript', 'source.tsx')
+          monaco.languages.register({ id: 'tsx' })
+          monaco.languages.register({ id: 'typescript' })
+          break
+        default:
+          throw new Error('Grammar register error!')
+      }
+
+      await wireTmGrammars(monaco, registry, grammars, editorRef.current)
     }
 
-    {
-      monaco.languages.register({ id: 'typescript' })
-      monaco.languages.register({ id: 'tsx' })
-      monaco.languages.register({ id: 'javascript' })
-      monaco.languages.register({ id: 'jsx' })
-
-      monaco.languages.register({ id: 'html' })
-      monaco.languages.register({ id: 'css' })
-    }
-
-    await wireTmGrammars(monaco, registry, grammars, editorRef.current)
+    loadGrammars()
     monaco.editor.setTheme(theme)
 
     // CSS Format

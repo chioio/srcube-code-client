@@ -38,6 +38,42 @@
 }
 
 @layer components {
+  .trending-pagination-btn {
+    /* @apply transition-opacity duration-500 ease-in-out; */
+  }
+
+  .trending-pagination-btn:hover {
+    /* @apply before:backdrop-blur-0; */
+  }
+
+  .trending-pagination-btn[data-operate='PREV']:hover
+    ~ div
+    > .trending-slide[data-position='-1'] {
+    @apply opacity-100;
+  }
+
+  .trending-pagination-btn[data-operate='NEXT']:hover
+    ~ div
+    > .trending-slide[data-position='1'] {
+    @apply opacity-100;
+  }
+
+  .trending-slide {
+    @apply grid grid-cols-2 grid-rows-2 gap-8 px-4 w-full h-full row-start-1 col-start-1 transition-transform duration-1000 ease-in-out;
+  }
+
+  .trending-slide[data-position='-1'] {
+    @apply -translate-x-full z-20 opacity-50;
+  }
+
+  .trending-slide[data-position='0'] {
+    @apply translate-x-0 z-30;
+  }
+
+  .trending-slide[data-position='1'] {
+    @apply translate-x-full z-10 opacity-50;
+  }
+
   .monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
     @apply bg-slate-800 bg-opacity-10 rounded;
   }

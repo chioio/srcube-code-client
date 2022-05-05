@@ -29,7 +29,7 @@ export const UserMenu: React.FC<UserMenuProps> = () => {
   }
 
   return (
-    <Popover className="inline-block relative">
+    <Popover className="inline-block relative z-50">
       <Popover.Button className="w-9 md:w-10 overflow-hidden">
         <img
           className="inline-block align-middle h-full rounded-md bg-white overflow-hidden shadow-md cursor-pointer"
