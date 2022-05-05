@@ -2,7 +2,7 @@
 
 🎓 A web online editor similar to the [codepen.io](https://codepen.io) for my graduation design, this repo contains the client side source.
 
-![Srcube Code](screenshots/preview.png 'Preview')
+![Srcube Code](screenshots/preview.jpg 'Preview')
 
 ## Tech stack
 
