@@ -11,6 +11,7 @@ import CodeEditorProvider from '@lib/context/CodeEditorContext'
 import { useAuth } from '@lib/context/AuthContext'
 import { IModal } from 'typings'
 import httpCsr from '@lib/utils/http-csr'
+import { StarUsers } from '../StarUsers'
 
 interface IPreviewModal extends IModal {
   creation: any
@@ -175,7 +176,7 @@ export const PreviewModal: React.FC<IPreviewModal> = ({
                         )}
                       </dd>
                     </div>
-                    {/* <StarUsers creationId={data?.creation._id} /> */}
+                    <StarUsers creationId={creation.id} />
                   </aside>
                 </div>
               </main>

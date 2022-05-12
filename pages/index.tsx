@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Content, Header, Layout, Links, Meta } from '@components/common'
+import { Content, Footer, Header, Layout, Links, Meta } from '@components/common'
 import { useAuth } from '@lib/context/AuthContext'
 import { Key, useEffect, useState } from 'react'
 import httpSsr from '@lib/utils/http-ssr'
@@ -143,6 +143,7 @@ export default function Home({ page }: { page: any }) {
             </div>
           </div>
         </Content>
+        <Footer />
       </Layout>
     </>
   )
