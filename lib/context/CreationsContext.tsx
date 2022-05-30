@@ -45,6 +45,10 @@ type TCreationsActions =
       }
     }
   | {
+      type: 'DELETE_CREATION'
+      payload: string
+    }
+  | {
       type: 'DATA_READY'
       payload: {
         data: TPage
@@ -130,6 +134,11 @@ const CreationsReducer = (
           }
           return item
         }),
+      }
+    case 'DELETE_CREATION':
+      return {
+        ...state,
+        creations: state.creations.filter((item) => item.id !== payload),
       }
     // data ready from async data fetch
     case 'DATA_READY':

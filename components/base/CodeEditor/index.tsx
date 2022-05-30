@@ -29,8 +29,6 @@ async function load() {
   return await loadWASM('/wasm/onigasm.wasm')
 }
 
-load()
-
 export enum ECodeEditorLanguage {
   CSS = 'css',
   HTML = 'html',
@@ -131,6 +129,10 @@ export const CodeEditor: React.FC<ICodeEditor> = ({
       monaco.editor.setTheme(theme)
     }
   }, [theme])
+
+  useEffect(() => {
+    load()
+  }, [])
 
   return (
     <div className="h-full overflow-hidden">

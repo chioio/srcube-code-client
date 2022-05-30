@@ -16,6 +16,7 @@ import { TCreation, useCreations } from '@lib/context/CreationsContext'
 import { ActionMenu, CreationFrame, PreviewModal } from '@components/platform'
 import { TUrlQuery } from 'pages/[username]'
 import { BASE_URL } from '@lib/utils'
+import { useState } from 'react'
 
 export type ICreationItem = {
   creation: TCreation
@@ -25,6 +26,7 @@ export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
   const { whoAmI } = useAuth()
 
   const { dispatch } = useCreations()
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   const router = useRouter()
   const { tab } = router.query as TUrlQuery
@@ -83,7 +85,7 @@ export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
       {/* Preview */}
       <div className="relative flex items-center justify-center py-[25%] w-full h-full rounded-xl overflow-hidden bg-red-500 text-white">
         <button
-          onClick={() => {}}
+          onClick={() => setPreviewOpen(true)}
           className="hidden group-hover:block absolute top-0 bottom-0 right-0 w-2/5 text-2xl cursor-pointer
           after:absolute after:right-0 after:top-0 group-hover:after:inset-0 after:cursor-pointer after:z-30 after:bg-gradient-to-bl after:from-gray-900/40 after:via-transparent after:to-transparent "
         >
@@ -146,16 +148,21 @@ export const CreationItem: React.FC<ICreationItem> = ({ creation }) => {
             />
             <span className="text-sm">{creation?._count?.stars}</span>
           </button>
-          <button onClick={() => {}} className={styles.meta.button}>
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className={styles.meta.button}
+          >
             <FontAwesomeIcon icon={faComment} />
             <span className="text-sm">{creation?._count?.comments}</span>
           </button>
         </div>
-        <PreviewModal
-          creation={creation}
-          opened={false}
-          onClose={function (): void {}}
-        />
+        {previewOpen && (
+          <PreviewModal
+            creationId={creation.id}
+            opened={previewOpen}
+            onClose={() => setPreviewOpen(false)}
+          />
+        )}
       </div>
     </article>
   )

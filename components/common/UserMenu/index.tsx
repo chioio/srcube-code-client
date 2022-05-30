@@ -13,11 +13,12 @@ interface UserMenuProps {}
 export const UserMenu: React.FC<UserMenuProps> = () => {
   const router = useRouter()
 
-  const { whoAmI } = useAuth()
+  const { whoAmI, setWhoAmI } = useAuth()
 
   const handleSignOut = () => {
     localStorage.removeItem('access-token')
     localStorage.removeItem('refresh-token')
+    setWhoAmI(null)
     router.push('/')
   }
 
@@ -67,9 +68,7 @@ export const UserMenu: React.FC<UserMenuProps> = () => {
               </Link>
             </li>
             <li className={styles.item.li}>
-              <Link
-                href={`/${whoAmI!.username}?tab=creations`}
-              >
+              <Link href={`/${whoAmI!.username}?tab=creations`}>
                 <p className={styles.item.p}>Creations</p>
               </Link>
             </li>
@@ -79,22 +78,14 @@ export const UserMenu: React.FC<UserMenuProps> = () => {
               </Link>
             </li>
             <li className={`${styles.item.li}`}>
-              <Link
-                href={`/${whoAmI!.username}?tab=notice`}
-              >
+              <Link href={`/${whoAmI!.username}?tab=notice`}>
                 <div className="relative w-full">
-                  <span className="absolute right-2 top-2 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                  </span>
                   <p className={styles.item.p}>Notifications</p>
                 </div>
               </Link>
             </li>
             <li className={`pb-1.5 border-b ${styles.item.li}`}>
-              <Link
-                href={`/${whoAmI!.username}?tab=settings`}
-              >
+              <Link href={`/${whoAmI!.username}?tab=settings`}>
                 <p className={styles.item.p}>Settings</p>
               </Link>
             </li>

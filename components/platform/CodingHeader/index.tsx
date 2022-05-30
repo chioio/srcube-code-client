@@ -65,7 +65,7 @@ export const SaveButton: React.VFC<any> = () => {
     }
 
     const { data, status } = id
-      ? await httpCsr.post(`/creation/${id}`, param)
+      ? await httpCsr.post(`/creation/update?id=${id}`, param)
       : await httpCsr.post('/creation', param)
 
     if (status === 200) {
@@ -94,11 +94,40 @@ export const SaveButton: React.VFC<any> = () => {
 
 export const ForkButton: React.VFC<any> = () => {
   const { whoAmI } = useAuth()
-  const [creation, setCreation] = useState({})
+  const router = useRouter()
+  const { creation, dispatch } = useCoding()
 
-  const handleFork = () => {
+  const handleFork = async () => {
     const { _id, createdAt, updatedAt, stars, comments, ...rest } =
       creation as any
+
+    const param = {
+      title: rest.title,
+      code_html: rest.code_html,
+      code_css: rest.code_css,
+      code_js: rest.code_js,
+    }
+
+    const { data, status } = await httpCsr.post('/creation', param)
+
+    if (status === 201) {
+      toast.success('Fork success!')
+      dispatch({
+        type: 'SET_CREATION',
+        payload: {
+          creation: {
+            ...data,
+            owner_id: whoAmI?.username,
+            stars: 0,
+            comments: 0,
+          },
+        },
+      })
+      router.push(
+        '/[username]/creation/[id]',
+        `/${whoAmI?.username}/creation/${data.id}`
+      )
+    }
   }
 
   return (

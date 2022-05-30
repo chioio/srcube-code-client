@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import { TUrlQuery } from 'pages/[username]'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { Follow } from 'typings'
+import { DeleteModal } from '../DeleteModal'
 
 export type TActionMenu = {
   creation: TCreation
@@ -38,6 +39,7 @@ export const ActionMenu: React.FC<TActionMenu> = ({ creation, onDelete }) => {
   const { tab } = router.query as TUrlQuery
 
   const [follow, setFollow] = useState<Follow | null>(null)
+  const [opened, setOpened] = useState(false)
 
   const handleTogglePin = async () => {
     if (whoAmI) {
@@ -90,6 +92,21 @@ export const ActionMenu: React.FC<TActionMenu> = ({ creation, onDelete }) => {
     }
   }
 
+  const handleDelete = async () => {
+    const { status } = await httpCsr.delete(`/creation?creation_id=${creation.id}`)
+
+    if (status === 200) {
+      setOpened(false)
+      dispatch({
+        type: 'DELETE_CREATION',
+        payload: creation.id,
+      })
+      toast.success('Creation deleted.')
+    }
+
+    setOpened(false)
+  }
+
   useEffect(() => {
     // get follow status
     const getFollow = async () => {
@@ -110,90 +127,97 @@ export const ActionMenu: React.FC<TActionMenu> = ({ creation, onDelete }) => {
   }, [whoAmI, creation.owner_id])
 
   return (
-    <Menu as="div" className="relative inline-block text-left">
-      {({ open }) => (
-        <>
-          <Menu.Button
-            className={`m-1 w-7 h-7 text-lg hover:text-black rounded-full active:bg-black/5 ${
-              open ? 'bg-white text-black' : 'text-black/30'
-            }`}
-          >
-            <FontAwesomeIcon
-              icon={faEllipsis}
-              className={`${
-                open ? '-rotate-90' : ''
-              } transition-transform duration-500 ease-in-out`}
-            />
-          </Menu.Button>
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            <Menu.Items className="absolute right-0 bottom-10 z-50 px-1 py-1 w-fit min-w-[12rem] origin-top-right bg-white divide-y divide-gray-200/80 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {whoAmI && (
-                <Menu.Item>
-                  {/* TOGGLE PIN */}
-                  <button
-                    onClick={handleTogglePin}
-                    className={styles.action.button}
-                  >
-                    <FontAwesomeIcon
-                      icon={faThumbtack}
-                      className={`${styles.action.icon} ${
-                        creation?.pins.length ? 'rotate-45' : ''
-                      }`}
-                    />
-                    <span>
-                      {creation?.pins.length
-                        ? 'Remove from Pins'
-                        : 'Add to Pins'}
-                    </span>
-                  </button>
-                </Menu.Item>
-              )}
-              {whoAmI?.id !== creation.owner_id ? (
-                <Menu.Item>
-                  {/* TOGGLE FOLLOW */}
-                  <button
-                    onClick={handleToggleFollow}
-                    className={`${styles.action.button} hover:!bg-blue-600 hover:text-white`}
-                  >
-                    <FontAwesomeIcon
-                      icon={follow ? faXmark : faHandSparkles}
-                      className={styles.action.icon}
-                    />
-                    <span>
-                      <span className="text-sm">
-                        {follow ? 'Unfollow ' : 'Follow '}
+    <>
+      <Menu as="div" className="relative inline-block text-left">
+        {({ open }) => (
+          <>
+            <Menu.Button
+              className={`m-1 w-7 h-7 text-lg hover:text-black rounded-full active:bg-black/5 ${
+                open ? 'bg-white text-black' : 'text-black/30'
+              }`}
+            >
+              <FontAwesomeIcon
+                icon={faEllipsis}
+                className={`${
+                  open ? '-rotate-90' : ''
+                } transition-transform duration-500 ease-in-out`}
+              />
+            </Menu.Button>
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="absolute right-0 bottom-10 z-50 px-1 py-1 w-fit min-w-[12rem] origin-top-right bg-white divide-y divide-gray-200/80 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                {whoAmI && (
+                  <Menu.Item>
+                    {/* TOGGLE PIN */}
+                    <button
+                      onClick={handleTogglePin}
+                      className={styles.action.button}
+                    >
+                      <FontAwesomeIcon
+                        icon={faThumbtack}
+                        className={`${styles.action.icon} ${
+                          creation?.pins.length ? 'rotate-45' : ''
+                        }`}
+                      />
+                      <span>
+                        {creation?.pins.length
+                          ? 'Remove from Pins'
+                          : 'Add to Pins'}
                       </span>
-                      @{creation?.owner.username}
-                    </span>
-                  </button>
-                </Menu.Item>
-              ) : (
-                <Menu.Item>
-                  {/* DELETE CREATION */}
-                  <button
-                    onClick={onDelete}
-                    className={`${styles.action.button} hover:!bg-red-500 hover:text-white`}
-                  >
-                    <FontAwesomeIcon
-                      icon={faTrashCan}
-                      className={styles.action.icon}
-                    />
-                    <span>Delete</span>
-                  </button>
-                </Menu.Item>
-              )}
-            </Menu.Items>
-          </Transition>
-        </>
-      )}
-    </Menu>
+                    </button>
+                  </Menu.Item>
+                )}
+                {whoAmI?.id !== creation.owner_id ? (
+                  <Menu.Item>
+                    {/* TOGGLE FOLLOW */}
+                    <button
+                      onClick={handleToggleFollow}
+                      className={`${styles.action.button} hover:!bg-blue-600 hover:text-white`}
+                    >
+                      <FontAwesomeIcon
+                        icon={follow ? faXmark : faHandSparkles}
+                        className={styles.action.icon}
+                      />
+                      <span>
+                        <span className="text-sm">
+                          {follow ? 'Unfollow ' : 'Follow '}
+                        </span>
+                        @{creation?.owner.username}
+                      </span>
+                    </button>
+                  </Menu.Item>
+                ) : (
+                  <Menu.Item>
+                    {/* DELETE CREATION */}
+                    <button
+                      onClick={() => setOpened(true)}
+                      className={`${styles.action.button} hover:!bg-red-500 hover:text-white`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faTrashCan}
+                        className={styles.action.icon}
+                      />
+                      <span>Delete</span>
+                    </button>
+                  </Menu.Item>
+                )}
+              </Menu.Items>
+            </Transition>
+          </>
+        )}
+      </Menu>
+      <DeleteModal
+        opened={opened}
+        onConfirm={handleDelete}
+        onClose={() => setOpened(false)}
+      />
+    </>
   )
 }

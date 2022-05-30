@@ -128,16 +128,21 @@ export const TrendingItem: React.FC<ITrendingItem> = ({ creation }) => {
             />
             <span className="text-sm">{starCount}</span>
           </button>
-          <button onClick={() => {}} className={styles.meta.button}>
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className={styles.meta.button}
+          >
             <FontAwesomeIcon icon={faComment} />
             <span className="text-sm">{creation?._count?.comments}</span>
           </button>
         </div>
-        <PreviewModal
-          creation={creation}
-          opened={previewOpen}
-          onClose={() => setPreviewOpen(false)}
-        />
+        {previewOpen && (
+          <PreviewModal
+            creationId={creation.id}
+            opened={previewOpen}
+            onClose={() => setPreviewOpen(false)}
+          />
+        )}
       </div>
     </article>
   )

@@ -11,11 +11,9 @@ import { useAuth } from '@lib/context/AuthContext'
 import httpCsr from '@lib/utils/http-csr'
 import toast from 'react-hot-toast'
 import { TCreation } from '@lib/context/CreationsContext'
-import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 
 export type TActionMenu = {
   creation: TCreation
-  onDelete?: () => void
 }
 
 const styles = {
@@ -26,7 +24,7 @@ const styles = {
   },
 }
 
-export const ActionMenu: React.FC<TActionMenu> = ({ creation, onDelete }) => {
+export const ActionMenu: React.FC<TActionMenu> = ({ creation }) => {
   const { whoAmI } = useAuth()
 
   const [followedId, setFollowedId] = useState(null)
@@ -158,19 +156,7 @@ export const ActionMenu: React.FC<TActionMenu> = ({ creation, onDelete }) => {
                   </button>
                 </Menu.Item>
               ) : (
-                <Menu.Item>
-                  {/* DELETE CREATION */}
-                  <button
-                    onClick={onDelete}
-                    className={`${styles.action.button} hover:!bg-red-500 hover:text-white`}
-                  >
-                    <FontAwesomeIcon
-                      icon={faTrashCan}
-                      className={styles.action.icon}
-                    />
-                    <span>Delete</span>
-                  </button>
-                </Menu.Item>
+                <></>
               )}
             </Menu.Items>
           </Transition>

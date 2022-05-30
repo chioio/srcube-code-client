@@ -199,15 +199,15 @@ const Profile: React.FC<any> = ({}) => {
               icon={faMeteor}
               className="font-medium text-gray-900"
             />
-            <span>{user?.profile.bio}</span>
+            <span>{user?.profile?.bio}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faBuilding} className="text-gray-900" />
-            <span>{user?.profile.org}</span>
+            <span>{user?.profile?.org}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faLocationArrow} className="text-gray-900" />
-            <span>{user?.profile.location}</span>
+            <span>{user?.profile?.location}</span>
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faEnvelope} className="text-gray-900" />
@@ -215,8 +215,8 @@ const Profile: React.FC<any> = ({}) => {
           </div>
           <div className="space-x-2">
             <FontAwesomeIcon icon={faLink} className="text-gray-900" />
-            <Link href={user.profile.website || '/'}>
-              <a className="hover:text-blue-600">{user?.profile.website}</a>
+            <Link href={user?.profile?.website || '/'}>
+              <a className="hover:text-blue-600">{user?.profile?.website}</a>
             </Link>
           </div>
         </div>

@@ -12,13 +12,14 @@ import { useAuth } from '@lib/context/AuthContext'
 import { IModal } from 'typings'
 import httpCsr from '@lib/utils/http-csr'
 import { StarUsers } from '../StarUsers'
+import toast from 'react-hot-toast'
 
 interface IPreviewModal extends IModal {
-  creation: any
+  creationId: string
 }
 
 export const PreviewModal: React.FC<IPreviewModal> = ({
-  creation,
+  creationId,
   opened,
   onClose,
 }) => {
@@ -26,12 +27,14 @@ export const PreviewModal: React.FC<IPreviewModal> = ({
 
   const router = useRouter()
 
+  const [creation, setCreation] = useState({} as any)
+
   const [followedId, setFollowedId] = useState(false)
 
   useEffect(() => {
     const fetchFollowed = async () => {
       const { data, status } = await httpCsr.get(
-        `/follow/is-followed?creation_id=${creation.id}`
+        `/follow/is-followed?creation_id=${creationId}`
       )
       if (status === 200) {
         setFollowedId(data)
@@ -40,6 +43,24 @@ export const PreviewModal: React.FC<IPreviewModal> = ({
 
     whoAmI && fetchFollowed()
   }, [whoAmI])
+
+  useEffect(() => {
+    const fetchCreation = async () => {
+      const { data, status } = await httpCsr.get(`/creation?id=${creationId}`)
+
+      if (status === 200) {
+        setCreation(data)
+
+        console.log(data)
+
+      } else {
+        toast.error('Could not fetch creation.')
+        onClose()
+      }
+    }
+
+    fetchCreation()
+  }, [])
 
   return (
     <Transition appear show={opened} as={Fragment}>
@@ -83,19 +104,19 @@ export const PreviewModal: React.FC<IPreviewModal> = ({
               >
                 <div className="-ml-8 h-fit flex-1 flex items-center space-x-3">
                   <img
-                    src={`${BASE_URL}/${creation.owner.profile.avatar}`}
+                    src={`${BASE_URL}/${creation?.owner?.profile?.avatar}`}
                     alt=""
                     className="inline-block bg-white w-14 h-14 shadow rounded-md"
                   />
                   <div className="flex-1 flex flex-col">
                     <h1 className="text-left text-2xl leading-9 font-bold">
-                      {creation.title}
+                      {creation?.title}
                     </h1>
                     <div className="flex space-x-2 h-fit space-y-1 align-middle">
                       <h2 className="h-fit text-base">
-                        @{creation.owner.username}
+                        @{creation?.owner?.username}
                       </h2>
-                      {whoAmI?.id !== creation.owner_id && (
+                      {whoAmI?.id !== creation?.owner_id && (
                         <button
                           onClick={() => {}}
                           className={`px-2 space-x-1 h-fit text-sm rounded-md ${
@@ -116,7 +137,7 @@ export const PreviewModal: React.FC<IPreviewModal> = ({
                       onClick={() =>
                         router.push(
                           '/[username]/creation/[_id]',
-                          `/${creation.owner.username}/creation/${creation.id}`
+                          `/${creation?.owner?.username}/creation/${creation.id}`
                         )
                       }
                       className={`px-3 py-1.5 space-x-2 rounded-md bg-blue-600 text-white hover:bg-blue-600/90 focus:ring-4 focus:ring-blue-600/40 active:bg-blue-700 active:shadow-md`}
@@ -136,10 +157,10 @@ export const PreviewModal: React.FC<IPreviewModal> = ({
 
                 {/* Information */}
                 <div className="mt-4 p-4 grid grid-cols-[minmax(0,35em)_minmax(0,240px)] gap-8">
-                  <CreationComment creationId={creation.id} />
+                  <CreationComment creation={creation} />
                   <aside className="flex flex-col space-y-3">
                     <CreationShareLink
-                      owner={creation.owner.username}
+                      owner={creation?.owner?.username}
                       creationId={creation.id}
                     />
                     {/* Create On */}

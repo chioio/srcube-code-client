@@ -12,8 +12,10 @@ export const StarUsers: React.VFC<{ creationId?: string }> = ({
 
   useEffect(() => {
     const fetchStars = async () => {
+      console.log(creationId)
       const { data, status } = await httpCsr.get(
-        `/creation/stars?creation_id=${creationId}`
+        '/creation/stars',
+        { params: { creation_id: creationId } }
       )
       if (status === 200) {
         setStars(data)
@@ -21,7 +23,7 @@ export const StarUsers: React.VFC<{ creationId?: string }> = ({
     }
 
     creationId && fetchStars()
-  })
+  }, [creationId])
 
   return (
     <div className="w-full h-fit">
@@ -31,11 +33,11 @@ export const StarUsers: React.VFC<{ creationId?: string }> = ({
       </h3>
 
       <div className="flex flex-wrap">
-        {stars.map((item: any) => (
-          <Link href={`${BASE_URL}/${item.owner.username}`}>
+        {stars.map((item: any, index) => (
+          <Link key={index} href={`http://${process.env.HOST}/${item.owner.username}`}>
             <a className="relative group m-0.5">
               <img
-                src={item.owner.profile.avatar}
+                src={`${BASE_URL}/${item.owner.profile.avatar}`}
                 className="rounded bg-white w-8 h-8 cursor-pointer"
               />
               <div className="opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition translate-y-2 absolute top-5 -left-16 -right-16 text-center">

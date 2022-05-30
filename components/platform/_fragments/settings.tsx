@@ -13,6 +13,7 @@ import { BASE_URL } from '@lib/utils'
 import httpCsr from '@lib/utils/http-csr'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
+import { TWhoAmI } from 'typings'
 
 interface ProfileFields {
   first_name: string
@@ -57,7 +58,7 @@ export const Settings: React.FC<any> = () => {
 }
 
 const ProfileEditForm: React.FC<any> = () => {
-  const { whoAmI } = useAuth()
+  const { whoAmI, setWhoAmI } = useAuth()
 
   const [isValid, setIsValid] = useState(false)
 
@@ -87,9 +88,17 @@ const ProfileEditForm: React.FC<any> = () => {
   })
 
   // Form submit handler
-  const submitProfileHandler: SubmitHandler<ProfileFields> = async (
-    fields
-  ) => {}
+  const submitProfileHandler: SubmitHandler<ProfileFields> = async (fields) => {
+    const { data, status } = await httpCsr.post('/user/profile', fields)
+
+    if (status === 200) {
+      const whoAmI = await httpCsr.get('/auth/whoami')
+
+      setWhoAmI(whoAmI.data)
+
+      toast.success('Profile updated successfully!')
+    }
+  }
 
   useEffect(() => {
     if (whoAmI) {
@@ -106,7 +115,11 @@ const ProfileEditForm: React.FC<any> = () => {
     <>
       <h1 className="text-xl leading-9">Profile</h1>
       <FormProvider {...profileForm}>
-        <form action="" className="px-4">
+        <form
+          action=""
+          onSubmit={profileForm.handleSubmit(submitProfileHandler)}
+          className="px-4"
+        >
           <div className="flex">
             {/* First Name Input */}
             <div className="flex-1">
@@ -238,7 +251,6 @@ const ProfileEditForm: React.FC<any> = () => {
                 type="submit"
                 disabled={!profileForm.formState.isDirty}
                 className={`${styles.form.submit}`}
-                onClick={() => {}}
               >
                 Update
               </button>
@@ -251,9 +263,39 @@ const ProfileEditForm: React.FC<any> = () => {
 }
 
 const AvatarUpload: React.FC<any> = () => {
-  const { whoAmI } = useAuth()
-
+  const { whoAmI, setWhoAmI } = useAuth()
+  const [isChange, setIsChange] = useState<boolean>(false)
   const avatarRef = useRef<HTMLImageElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleUpload = async () => {
+    if (inputRef.current) {
+      const file = inputRef.current.files?.length
+        ? inputRef.current.files[0]
+        : null
+
+      if (!file) return
+
+      const formData = new FormData()
+      formData.append('file', file)
+      console.log(file)
+      const { data, status } = await httpCsr.post(
+        '/user/upload-avatar',
+        formData
+      )
+
+      if (status === 200) {
+        setWhoAmI({
+          ...whoAmI,
+          profile: { ...whoAmI?.profile, avatar: data.avatar },
+        } as TWhoAmI)
+
+        setIsChange(false)
+
+        toast.success('Avatar updated!')
+      }
+    }
+  }
 
   return (
     <>
@@ -266,6 +308,7 @@ const AvatarUpload: React.FC<any> = () => {
           className="w-32 rounded-full"
         />
         <input
+          ref={inputRef}
           type="file"
           className={`${styles.file.input}`}
           onChange={(e) => {
@@ -278,13 +321,18 @@ const AvatarUpload: React.FC<any> = () => {
                     avatarRef.current.src = reader.result as string
                 }
                 reader.readAsDataURL(file)
+                setIsChange(true)
               } else {
                 toast.error('Please upload an image file!')
               }
             }
           }}
         />
-        <button disabled className={`${styles.file.upload}`}>
+        <button
+          disabled={!isChange}
+          onClick={handleUpload}
+          className={`${styles.file.upload}`}
+        >
           Upload
         </button>
       </div>
@@ -295,6 +343,12 @@ const AvatarUpload: React.FC<any> = () => {
 const BannerUpload: React.FC<any> = () => {
   const [banner, setBanner] = useState<string>('')
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleUpload = () => {
+    if (inputRef.current) {
+      console.log(inputRef.current.files)
+    }
+  }
 
   const handleDeleteCurrent = () => {
     setBanner('')
@@ -345,7 +399,11 @@ const BannerUpload: React.FC<any> = () => {
               }
             }}
           />
-          <button disabled={!banner} className={`${styles.file.upload}`}>
+          <button
+            disabled={!banner}
+            onClick={handleUpload}
+            className={`${styles.file.upload}`}
+          >
             Upload
           </button>
           <button

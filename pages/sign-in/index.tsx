@@ -16,6 +16,7 @@ import { FormInput } from '@components/platform'
 import { useExistedCheck } from '@lib/hooks'
 import httpCsr from '@lib/utils/http-csr'
 import { EAccountType } from 'typings'
+import { useAuth } from '@lib/context/AuthContext'
 
 interface Fields {
   account: string
@@ -26,6 +27,7 @@ interface Fields {
 export default function SignIn() {
   const [isChanged, setIsChanged] = useState(false)
   const accountExistedCheck = useExistedCheck()
+  const { setWhoAmI } = useAuth()
 
   // Validation schema
   const schema = Yup.object().shape({
@@ -58,6 +60,12 @@ export default function SignIn() {
     if (status === 200) {
       localStorage.setItem('access-token', data.access_token)
       localStorage.setItem('refresh-token', data.refresh_token)
+
+      const whoAmI = await httpCsr.get('/auth/whoami')
+
+      if (whoAmI.data) { 
+        setWhoAmI(whoAmI.data)
+      }
 
       toast.success('Sign in successfully!')
 
